@@ -1,0 +1,196 @@
+# -*-eselect-*-  vim: ft=eselect
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2 or later
+# $Id: $
+
+DESCRIPTION="Switch between init implementations"
+MAINTAINER="lxnay@gentoo.org"
+VERSION="0.1"
+
+# Directory where init implementations are supposed to be found.
+# The directory name is going to become the target name.
+INITS_DIR="${EROOT}/sbin/init.d"
+# Directory where symlinks are created
+INIT_DIR="${EROOT}/sbin"
+# Executables expected to be found in ${INITS_DIR}/<target>/
+INIT_PARTS=(
+	"halt"
+	"init"
+	"poweroff"
+	"reboot"
+)
+
+find_targets() {
+	local d=
+	local dname=
+	local legit=
+	for d in "${INITS_DIR}/"*; do
+		[[ ! -d "${d}" ]] && continue
+		legit=1
+		for part in "${INIT_PARTS[@]}"; do
+			[[ ! -x "${d}/${part}" ]] && {
+				legit=0;
+				break;
+			}
+		done
+		[[ ${legit} == 0 ]] && continue
+		dname=$(basename "${d}")
+		echo "${dname}"
+	done
+}
+
+set_init() {
+	local target="${1}"
+	local target_dir="${INITS_DIR}/${target}"
+
+	if is_number "${target}"; then
+		local targets=( $(find_targets) )
+		target=${targets[target-1]}
+	fi
+
+	[[ -z "${target}" || ! -d "${target_dir}" ]] \
+		&& die -q "Target \"${target}\" doesn't appear to be valid!"
+
+	echo "Setting the init implementation to ${target}"
+	local s d
+	for part in "${INIT_PARTS[@]}"; do
+		s="${target_dir}/${part}"
+		d="${INIT_DIR}/${part}"
+		ln -sf "${s#${INIT_DIR}/}" "${d}" \
+			|| die "Cannot create symlink: ${d}"
+	done
+}
+
+get_init() {
+	local init=
+	local init_link=
+	local init_link_dir=
+	local init_bn=
+
+	init="${INIT_DIR}/${INIT_PARTS[0]}"
+	[[ ! -L "${init}" ]] && return 1
+
+	init_link=$(readlink "${init}")
+	[[ -z "${init_link}" ]] && return 1
+
+	init_link_dir=$(dirname "${init_link}")
+	[[ -z "${init_link_dir}" ]] && return 1
+
+	init_bn=$(basename "${init_link_dir}")
+	echo ${init_bn}
+}
+
+describe_show() {
+	echo "Show the current init implementation"
+}
+
+describe_show_options() {
+	echo "--quiet  : only print the actual symlink value"
+	echo "--silent : same as --quiet"
+}
+
+do_show() {
+	local quiet=
+	local init=
+
+	while [[ $# -gt 0 ]]; do
+		case ${1##--} in
+			quiet|silent)
+				quiet="1"
+				;;
+		esac
+		shift
+	done
+
+	init=$(get_init)
+	[[ -z "${quiet}" ]] && write_list_start "Current :"
+	if [[ -n "${init}" ]]; then
+		if [[ -n "${quiet}" ]]; then
+			echo "${init}"
+		else
+			write_kv_list_entry "${init}" ""
+		fi
+	else
+		if [[ -z "${quiet}" ]]; then
+			write_kv_list_entry "(unset)" ""
+		fi
+	fi
+}
+
+### list action ###
+
+describe_list() {
+	echo "List available init implementations"
+}
+
+describe_list_options() {
+	echo "--quiet  : only print the actual symlink value"
+	echo "--silent : same as --quiet"
+}
+
+do_list() {
+	local quiet=
+	local i=
+	local init=$(get_init)
+	local targets=( $(find_targets) )
+
+	while [[ $# -gt 0 ]]; do
+		case ${1##--} in
+			quiet|silent)
+				quiet="1"
+				;;
+		esac
+		shift
+	done
+
+	[[ -z "${quiet}" ]] && \
+		write_list_start "Available init implementations:"
+	for (( i = 0; i < ${#targets[@]}; i++ )); do
+		if [[ -z "${quiet}" ]]; then
+			[[ "${targets[i]}" == "${init}" ]] && \
+				targets[i]=$(highlight_marker "${targets[i]}")
+		else
+			echo "${targets[i]}"
+		fi
+	done
+	[[ -z "${quiet}" ]] && \
+		write_numbered_list -m "(none found)" "${targets[@]}"
+}
+
+describe_set() {
+	echo "Set a new init implementation"
+}
+
+describe_set_parameters() {
+	echo "<target>"
+}
+
+describe_set_options() {
+	echo "target : Target name or number (from 'list' action)"
+	echo "--use-old : use the old value if target is already set"
+}
+
+do_set() {
+	local use_old=
+	local target="${1}"
+
+	while [[ $# -gt 0 ]]; do
+		case ${1##--} in
+			use-old)
+				use_old="1"
+				;;
+		esac
+		shift
+	done
+
+	[[ -z "${target}" ]] && \
+	   die -q "You didn't tell me what to set the symlink to"
+	[[ ${#} -gt 1 ]] && die -q "Too many parameters"
+
+	if [[ "${use_old}" = "1" ]]; then
+	   old_target=$(get_init)
+	   target="${old_target:-${target}}"
+	fi
+
+	set_init "${target}" || die -q "Couldn't set a new symlink"
+}
