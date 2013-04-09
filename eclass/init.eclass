@@ -33,5 +33,5 @@ INIT_PARTS="halt init poweroff reboot"
 # implementation and configures the initial symlinks by calling
 # eselect init. It must be called in pkg_postinst, pkg_prerm, pkg_postrm.
 pkg_init_setup() {
-	"${ROOT}"/usr/bin/eselect init set --use-old "${INIT_NAME}"
+	"${ROOT}"/usr/bin/eselect init set "${INIT_NAME}" --use-old
 }
