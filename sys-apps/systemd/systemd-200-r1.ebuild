@@ -5,7 +5,7 @@
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user init
+inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user sysvinit
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -41,7 +41,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
-	app-admin/eselect-init
+	app-admin/eselect-sysvinit
 	>=sys-apps/baselayout-2.2
 	|| (
 		>=sys-apps/util-linux-2.22
@@ -174,8 +174,8 @@ src_install() {
 	done
 
 	# add support for eselect init, rename paths
-	local init_dir="${INITS_DIR}/${INIT_NAME}"
-	local parts=( ${INIT_PARTS} )
+	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
+	local parts=( ${SYSVINIT_PARTS} )
 	dodir "/${init_dir}"
 	for part in "${parts[@]}"; do
 		if [[ "${part}" == "init" ]]; then
@@ -257,7 +257,7 @@ pkg_postinst() {
 		ewarn
 		ewarn "	init=/usr/lib/systemd/systemd"
 	fi
-	pkg_init_setup
+	pkg_sysvinit_setup
 }
 
 pkg_prerm() {
@@ -265,9 +265,9 @@ pkg_prerm() {
 	if [[ ! ${REPLACED_BY_VERSION} ]]; then
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
-	pkg_init_setup
+	pkg_sysvinit_setup
 }
 
 pkg_postrm() {
-	pkg_init_setup
+	pkg_sysvinit_setup
 }

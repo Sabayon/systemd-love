@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils toolchain-funcs flag-o-matic init
+inherit eutils toolchain-funcs flag-o-matic sysvinit
 
 DESCRIPTION="/sbin/init - parent of all processes"
 HOMEPAGE="http://savannah.nongnu.org/projects/sysvinit"
@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 IUSE="selinux ibm static kernel_FreeBSD"
 
-RDEPEND="app-admin/eselect-init
+RDEPEND="app-admin/eselect-sysvinit
 	selinux? ( >=sys-libs/libselinux-1.28 )
 	!<sys-apps/util-linux-2.22
 	!<sys-apps/sysvinit-2.88-r5"
@@ -86,16 +86,16 @@ src_install() {
 	doinitd "${FILESDIR}"/{reboot,shutdown}.sh
 
 	# add support for eselect init, rename paths
-	local init_dir="${INITS_DIR}/${INIT_NAME}"
-	local parts=( ${INIT_PARTS} )
+	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
+	local parts=( ${SYSVINIT_PARTS} )
 	dodir "/${init_dir}"
 	for part in "${parts[@]}"; do
-		mv "${D}/${INIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
+		mv "${D}/${SYSVINIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
 	done
 }
 
 pkg_postinst() {
-	pkg_init_setup
+	pkg_sysvinit_setup
 	# Reload init to fix unmounting problems of / on next reboot.
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
@@ -106,9 +106,9 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	pkg_init_setup
+	pkg_sysvinit_setup
 }
 
 pkg_postrm() {
-	pkg_init_setup
+	pkg_sysvinit_setup
 }
