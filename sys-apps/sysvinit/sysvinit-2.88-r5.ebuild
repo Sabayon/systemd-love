@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils toolchain-funcs flag-o-matic
+inherit eutils toolchain-funcs flag-o-matic init
 
 DESCRIPTION="/sbin/init - parent of all processes"
 HOMEPAGE="http://savannah.nongnu.org/projects/sysvinit"
@@ -86,16 +86,16 @@ src_install() {
 	doinitd "${FILESDIR}"/{reboot,shutdown}.sh
 
 	# add support for eselect init, rename paths
-	local init_dir="sbin/init.d/${PN}"
-	local parts=( halt init poweroff reboot )
+	local init_dir="${INITS_DIR}/${INIT_NAME}"
+	local parts=( ${INIT_PARTS} )
 	dodir "/${init_dir}"
 	for part in "${parts[@]}"; do
-		mv "${D}/sbin/${part}" "${D}/${init_dir}/${part}" || die
+		mv "${D}/${INIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
 	done
 }
 
 pkg_postinst() {
-	"${ROOT}"/usr/bin/eselect init set --use-old "${PN}"
+	pkg_init_setup
 	# Reload init to fix unmounting problems of / on next reboot.
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
@@ -106,9 +106,9 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	"${ROOT}"/usr/bin/eselect init set --use-old "${PN}"
+	pkg_init_setup
 }
 
 pkg_postrm() {
-	"${ROOT}"/usr/bin/eselect init set --use-old "${PN}"
+	pkg_init_setup
 }
