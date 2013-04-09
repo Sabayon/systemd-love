@@ -36,12 +36,12 @@ find_targets() {
 
 set_init() {
 	local target="${1}"
-	local target_dir="${INITS_DIR}/${target}"
 
 	if is_number "${target}"; then
 		local targets=( $(find_targets) )
 		target=${targets[target-1]}
 	fi
+	local target_dir="${INITS_DIR}/${target}"
 
 	[[ -z "${target}" || ! -d "${target_dir}" ]] \
 		&& die -q "Target \"${target}\" doesn't appear to be valid!"
