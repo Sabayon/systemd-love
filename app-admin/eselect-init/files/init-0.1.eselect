@@ -9,16 +9,11 @@ VERSION="0.1"
 
 # Directory where init implementations are supposed to be found.
 # The directory name is going to become the target name.
-INITS_DIR="${EROOT}/sbin/init.d"
+INITS_DIR="${EROOT}/%INITS_DIR%"
 # Directory where symlinks are created
-INIT_DIR="${EROOT}/sbin"
+INIT_DIR="${EROOT}/%INIT_DIR%"
 # Executables expected to be found in ${INITS_DIR}/<target>/
-INIT_PARTS=(
-	"halt"
-	"init"
-	"poweroff"
-	"reboot"
-)
+INIT_PARTS=( %INIT_PARTS% )
 
 find_targets() {
 	local d=

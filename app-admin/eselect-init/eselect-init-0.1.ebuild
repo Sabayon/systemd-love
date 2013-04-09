@@ -4,6 +4,8 @@
 
 EAPI=4
 
+inherit init
+
 SRC_URI=""
 KEYWORDS="~amd64 ~arm ~x86"
 
@@ -20,6 +22,11 @@ RDEPEND="app-admin/eselect"
 DEPEND="${RDEPEND}"
 
 src_install() {
+	cp "${FILESDIR}/init-${PV}.eselect" init.eselect || die "cannot copy init.eselect"
+	sed -i "s:%INITS_DIR%:${INITS_DIR}:" init.eselect || die "cannot setup INITS_DIR"
+	sed -i "s:%INIT_DIR%:${INIT_DIR}:" init.eselect || die "cannot setup INIT_DIR"
+	sed -i "s:%INIT_PARTS%:${INIT_PARTS}:" init.eselect || die "cannot setup INIT_PARTS"
+
 	insinto /usr/share/eselect/modules
-	newins "${FILESDIR}/init-${PV}.eselect" init.eselect
+	doins init.eselect
 }
