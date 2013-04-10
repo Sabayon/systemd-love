@@ -3,11 +3,11 @@
 # Distributed under the terms of the GNU General Public License v2 or later
 # $Id: $
 
-DESCRIPTION="Switch between init implementations"
+DESCRIPTION="Switch between sysvinit implementations"
 MAINTAINER="lxnay@gentoo.org"
 VERSION="0.1"
 
-# Directory where init implementations are supposed to be found.
+# Directory where sysvinit implementations are supposed to be found.
 # The directory name is going to become the target name.
 INITS_DIR="${EROOT}/%INITS_DIR%"
 # Directory where symlinks are created
@@ -46,7 +46,7 @@ set_init() {
 	[[ -z "${target}" || ! -d "${target_dir}" ]] \
 		&& die -q "Target \"${target}\" doesn't appear to be valid!"
 
-	echo "Setting the init implementation to ${target}"
+	echo "Setting the sysvinit implementation to ${target}"
 	local s d
 	for part in "${INIT_PARTS[@]}"; do
 		s="${target_dir}/${part}"
@@ -76,11 +76,11 @@ get_init() {
 }
 
 describe_show() {
-	echo "Show the current init implementation"
+	echo "Show the current sysvinit implementation"
 }
 
 describe_show_options() {
-	echo "--quiet  : only print the actual symlink value"
+	echo "--quiet  : only print the actual sysvinit implementation"
 	echo "--silent : same as --quiet"
 }
 
@@ -115,11 +115,11 @@ do_show() {
 ### list action ###
 
 describe_list() {
-	echo "List available init implementations"
+	echo "List available sysvinit implementations"
 }
 
 describe_list_options() {
-	echo "--quiet  : only print the actual symlink value"
+	echo "--quiet  : only print the actual sysvinit implementation"
 	echo "--silent : same as --quiet"
 }
 
@@ -139,7 +139,7 @@ do_list() {
 	done
 
 	[[ -z "${quiet}" ]] && \
-		write_list_start "Available init implementations:"
+		write_list_start "Available sysvinit implementations:"
 	for (( i = 0; i < ${#targets[@]}; i++ )); do
 		if [[ -z "${quiet}" ]]; then
 			[[ "${targets[i]}" == "${init}" ]] && \
@@ -153,7 +153,7 @@ do_list() {
 }
 
 describe_set() {
-	echo "Set a new init implementation"
+	echo "Set a new sysvinit implementation"
 }
 
 describe_set_parameters() {
