@@ -194,44 +194,7 @@ src_install() {
 		fi
 	done
 
-	# add support for eselect settingsd, rename paths
-	# intersection between openrc-settingsd[-systemd] and systemd:
-	# /usr/share/dbus-1/interfaces/org.freedesktop.hostname1.xml
-	# /usr/share/dbus-1/interfaces/org.freedesktop.locale1.xml
-	# /usr/share/dbus-1/interfaces/org.freedesktop.timedate1.xml
-	# /usr/share/dbus-1/system-services/org.freedesktop.hostname1.service
-	# /usr/share/dbus-1/system-services/org.freedesktop.locale1.service
-	# /usr/share/dbus-1/system-services/org.freedesktop.timedate1.service
-	# /usr/share/polkit-1/actions/org.freedesktop.hostname1.policy
-	# /usr/share/polkit-1/actions/org.freedesktop.locale1.policy
-	# /usr/share/polkit-1/actions/org.freedesktop.timedate1.policy
-	local settingsd_dir="${SETTINGSD_DIR}/${SETTINGSD_NAME}"
-	dodir "/${settingsd_dir}"
-
-	local services=( hostname1 locale1 timedate1 )
-	local srv=
-	local s=
-	local d=
-	for srv in "${services[@]}"; do
-		# dbus interfaces
-		s="/usr/share/dbus-1/interfaces/org.freedesktop.${srv}.xml"
-		d="/${settingsd_dir}${s}"
-		dodir $(dirname "${d}")
-		einfo "eselect-settingsd: moving ${s} to ${d}"
-		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
-
-		# dbus system-services
-		s="/usr/share/dbus-1/system-services/org.freedesktop.${srv}.service"
-		d="/${settingsd_dir}${s}"
-		dodir $(dirname "${d}")
-		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
-
-		# polkit actions
-		s="/usr/share/polkit-1/actions/org.freedesktop.${srv}.policy"
-		d="/${settingsd_dir}${s}"
-		dodir $(dirname "${d}")
-		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
-	done
+	settingsd_setup_install
 }
 
 pkg_preinst() {
