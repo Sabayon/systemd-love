@@ -21,6 +21,11 @@ SYSVINITS_DIR="${SYSVINIT_DIR}/init.d"
 # Name of the sysvinit implementation that is being installed/removed.
 SYSVINIT_NAME="${SYSVINIT_NAME:-${PN}}"
 
+# @ECLASS-VARIABLE: DEFAULT_SYSVINIT
+# @DESCRIPTION:
+# Current distribution default sysvinit implementation
+DEFAULT_SYSVINIT="sysvinit"
+
 # @ECLASS-VARIABLE: SYSVINIT_PARTS
 # @DESCRIPTION:
 # List of sysvinit executables that must be placed inside ${SYSVINITS_DIR}/${PN}
@@ -33,5 +38,5 @@ SYSVINIT_PARTS="halt init poweroff reboot"
 # implementation and configures the initial symlinks by calling
 # eselect sysvinit. It must be called in pkg_postinst, pkg_prerm, pkg_postrm.
 pkg_sysvinit_setup() {
-	"${ROOT}"/usr/bin/eselect sysvinit set "${SYSVINIT_NAME}" --use-old
+	"${ROOT}"/usr/bin/eselect sysvinit set "${DEFAULT_SYSVINIT}" --use-old
 }
