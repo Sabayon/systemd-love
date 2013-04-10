@@ -47,12 +47,16 @@ set_init() {
 		&& die -q "Target \"${target}\" doesn't appear to be valid!"
 
 	echo "Setting the sysvinit implementation to ${target}"
-	local s d
+	local s d part
 	for part in "${INIT_PARTS[@]}"; do
 		s="${target_dir}/${part}"
 		d="${INIT_DIR}/${part}"
-		ln -sf "${s#${INIT_DIR}/}" "${d}" \
-			|| die "Cannot create symlink: ${d}"
+		ln -sf "${s#${INIT_DIR}/}" "${d}.tmp" || \
+			{
+				rm -f "${d}.tmp";
+				die "Cannot create symlink: ${d}.tmp"
+			}
+		mv "${d}.tmp" "${d}" || die "Cannot mv symlink: ${d}.tmp"
 	done
 }
 
