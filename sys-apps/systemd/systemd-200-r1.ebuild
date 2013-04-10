@@ -5,7 +5,7 @@
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user sysvinit
+inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user sysvinit settingsd
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -41,6 +41,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
+	app-admin/eselect-settingsd
 	app-admin/eselect-sysvinit
 	>=sys-apps/baselayout-2.2
 	|| (
@@ -177,6 +178,7 @@ src_install() {
 	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
 	local parts=( ${SYSVINIT_PARTS} )
 	dodir "/${init_dir}"
+	local part=
 	for part in "${parts[@]}"; do
 		if [[ "${part}" == "init" ]]; then
 			dosym "../../../usr/bin/systemd" "/${init_dir}/${part}"
@@ -190,6 +192,45 @@ src_install() {
 		else
 			die "unsupported eselect-init part ${part}"
 		fi
+	done
+
+	# add support for eselect settingsd, rename paths
+	# intersection between openrc-settingsd[-systemd] and systemd:
+	# /usr/share/dbus-1/interfaces/org.freedesktop.hostname1.xml
+	# /usr/share/dbus-1/interfaces/org.freedesktop.locale1.xml
+	# /usr/share/dbus-1/interfaces/org.freedesktop.timedate1.xml
+	# /usr/share/dbus-1/system-services/org.freedesktop.hostname1.service
+	# /usr/share/dbus-1/system-services/org.freedesktop.locale1.service
+	# /usr/share/dbus-1/system-services/org.freedesktop.timedate1.service
+	# /usr/share/polkit-1/actions/org.freedesktop.hostname1.policy
+	# /usr/share/polkit-1/actions/org.freedesktop.locale1.policy
+	# /usr/share/polkit-1/actions/org.freedesktop.timedate1.policy
+	local settingsd_dir="${SETTINGSD_DIR}/${SETTINGSD_NAME}"
+	dodir "/${settingsd_dir}"
+
+	local services=( hostname1 locale1 timedate1 )
+	local srv=
+	local s=
+	local d=
+	for srv in "${services[@]}"; do
+		# dbus interfaces
+		s="/usr/share/dbus-1/interfaces/org.freedesktop.${srv}.xml"
+		d="/${settingsd_dir}${s}"
+		dodir $(dirname "${d}")
+		einfo "eselect-settingsd: moving ${s} to ${d}"
+		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
+
+		# dbus system-services
+		s="/usr/share/dbus-1/system-services/org.freedesktop.${srv}.service"
+		d="/${settingsd_dir}${s}"
+		dodir $(dirname "${d}")
+		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
+
+		# polkit actions
+		s="/usr/share/polkit-1/actions/org.freedesktop.${srv}.policy"
+		d="/${settingsd_dir}${s}"
+		dodir $(dirname "${d}")
+		mv "${D}${s}" "${D}${d}" || die "${s} not found, something is broken"
 	done
 }
 
@@ -258,6 +299,7 @@ pkg_postinst() {
 		ewarn "	init=/usr/lib/systemd/systemd"
 	fi
 	pkg_sysvinit_setup
+	pkg_settingsd_setup
 }
 
 pkg_prerm() {
@@ -266,8 +308,10 @@ pkg_prerm() {
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
 	pkg_sysvinit_setup
+	pkg_settingsd_setup
 }
 
 pkg_postrm() {
 	pkg_sysvinit_setup
+	pkg_settingsd_setup
 }
