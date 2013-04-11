@@ -22,8 +22,7 @@ RDEPEND=">=dev-lang/spidermonkey-1.8.5-r1[-debug]
 		sys-auth/pambase
 		virtual/pam
 		)
-	selinux? ( sec-policy/selinux-policykit )
-	systemd? ( sys-apps/systemd )"
+	selinux? ( sec-policy/selinux-policykit )"
 DEPEND="${RDEPEND}
 	app-text/docbook-xml-dtd:4.1.2
 	app-text/docbook-xsl-stylesheets
@@ -37,7 +36,7 @@ PDEPEND="
 		) )
 	kde? ( sys-auth/polkit-kde-agent )
 	pam? ( sys-auth/pambase )
-	!systemd? ( >=sys-auth/consolekit-0.4.5_p2012[policykit] )"
+	|| ( >=sys-auth/consolekit-0.4.5_p2012[policykit] sys-apps/systemd )"
 
 QA_MULTILIB_PATHS="
 	usr/lib/polkit-1/polkit-agent-helper-1
