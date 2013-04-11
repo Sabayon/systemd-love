@@ -36,6 +36,7 @@ PDEPEND="
 		) )
 	kde? ( sys-auth/polkit-kde-agent )
 	pam? ( sys-auth/pambase )
+	systemd? ( sys-apps/systemd )
 	|| ( >=sys-auth/consolekit-0.4.5_p2012[policykit] sys-apps/systemd )"
 
 QA_MULTILIB_PATHS="
