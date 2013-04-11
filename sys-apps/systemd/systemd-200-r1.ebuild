@@ -18,7 +18,7 @@ IUSE="acl audit cryptsetup doc gcrypt gudev http
 	introspection +kmod lzma pam python qrcode selinux static-libs
 	tcpd vanilla xattr"
 
-MINKV="2.6.39"
+MINKV="2.6.32"
 
 COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	>=sys-apps/util-linux-2.20
@@ -112,6 +112,11 @@ src_configure() {
 	tc-export CC
 
 	autotools-utils_src_configure
+}
+
+src_prepare() {
+	epatch "${FILESDIR}/accept4.patch"
+	autotools-utils_src_prepare
 }
 
 src_compile() {
