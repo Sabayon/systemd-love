@@ -29,4 +29,6 @@ src_install() {
 
 	insinto /usr/share/eselect/modules
 	doins sysvinit.eselect
+	exeinto /sbin/init.d
+	doexe "${FILESDIR}"/exec.sh
 }
