@@ -45,6 +45,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 	introspection? ( >=dev-libs/gobject-introspection-0.10.3 )
 	ppp? ( >=net-dialup/ppp-2.4.5[ipv6] )
 	resolvconf? ( net-dns/openresolv )
+	systemd? ( >=sys-apps/systemd-31 )
 	connection-sharing? (
 		net-dns/dnsmasq
 		net-firewall/iptables )
@@ -55,7 +56,6 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 
 RDEPEND="${COMMON_DEPEND}
 	modemmanager? ( >=net-misc/modemmanager-0.4 )
-	systemd? ( >=sys-apps/systemd-31 )
 	|| ( sys-auth/consolekit >=sys-apps/systemd-31 )"
 
 DEPEND="${COMMON_DEPEND}
