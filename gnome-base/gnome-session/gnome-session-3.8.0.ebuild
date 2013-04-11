@@ -53,6 +53,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-themes/gnome-themes-standard-2.91.92
 	sys-apps/dbus[X]
 	>=gnome-base/gnome-desktop-3.7.90:3
+	systemd? ( >=sys-apps/systemd-183 )
 	|| ( sys-auth/consolekit >=sys-apps/systemd-183 )
 "
 DEPEND="${COMMON_DEPEND}
