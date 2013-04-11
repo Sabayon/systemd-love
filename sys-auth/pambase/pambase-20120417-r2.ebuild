@@ -41,7 +41,7 @@ RDEPEND="
 DEPEND="app-portage/portage-utils"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-systemd-optional.patch
+	epatch "${FILESDIR}"/${P}-systemd-2.patch
 }
 
 src_compile() {
