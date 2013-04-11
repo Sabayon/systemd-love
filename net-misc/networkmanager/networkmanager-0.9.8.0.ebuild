@@ -52,6 +52,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 	introspection? ( >=dev-libs/gobject-introspection-0.10.3 )
 	ppp? ( >=net-dialup/ppp-2.4.5[ipv6] )
 	resolvconf? ( net-dns/openresolv )
+	systemd? ( >=sys-auth/systemd-183 )
 	|| ( sys-power/upower >=sys-apps/systemd-183 )
 "
 RDEPEND="${COMMON_DEPEND}

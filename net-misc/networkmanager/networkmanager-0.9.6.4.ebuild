@@ -55,6 +55,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 
 RDEPEND="${COMMON_DEPEND}
 	modemmanager? ( >=net-misc/modemmanager-0.4 )
+	systemd? ( >=sys-apps/systemd-31 )
 	|| ( sys-auth/consolekit >=sys-apps/systemd-31 )"
 
 DEPEND="${COMMON_DEPEND}
