@@ -1,0 +1,12 @@
+[Unit]
+Description=fcron Cron Daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/fcron -f
+ExecReload=/bin/kill -USR1 $MAINPID
+PIDFile=/var/run/fcron.pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

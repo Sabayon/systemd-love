@@ -1,0 +1,11 @@
+[Unit]
+Description=Next-Gen syslog
+Requires=syslog.socket
+
+[Service]
+ExecStart=/usr/sbin/syslog-ng --foreground
+StandardOutput=null
+
+[Install]
+Alias=syslog.service
+WantedBy=multi-user.target
