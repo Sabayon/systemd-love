@@ -31,6 +31,10 @@ src_prepare() {
 	epatch "${FILESDIR}"/${P}-selinux.patch #326697
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
+	# eselect-sysvinit support, rename INIT #define
+	sed -i "/^#define INIT/ s:/sbin/init:/${SYSVINITS_DIR}/${SYSVINIT_NAME}/init:" \
+		"${S}/src/paths.h" || die "cannot replace /sbin/init path"
+
 	# mountpoint/sulogin/utmpdump have moved to util-linux
 	sed -i -r \
 		-e '/^(USR)?S?BIN/s:\<(mountpoint|sulogin|utmpdump)\>::g' \
