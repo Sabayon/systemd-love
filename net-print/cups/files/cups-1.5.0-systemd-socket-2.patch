@@ -32,11 +32,11 @@ diff -up cups-1.5.0/config-scripts/cups-systemd.m4.systemd-socket cups-1.5.0/con
 +        [], [with_systemdsystemunitdir=$($PKGCONFIG --variable=systemdsystemunitdir systemd)])
 +if test "x$with_systemdsystemunitdir" != xno; then
 +        AC_MSG_CHECKING(for libsystemd-daemon)
++	AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
 +        if $PKGCONFIG --exists libsystemd-daemon; then
 +		AC_MSG_RESULT(yes)
 +        	SDCFLAGS=`$PKGCONFIG --cflags libsystemd-daemon`
 +        	SDLIBS=`$PKGCONFIG --libs libsystemd-daemon`
-+		AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
 +		AC_DEFINE(HAVE_SYSTEMD)
 +	else
 +		AC_MSG_RESULT(no)
