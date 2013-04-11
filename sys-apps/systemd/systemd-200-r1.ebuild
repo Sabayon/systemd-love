@@ -186,7 +186,7 @@ src_install() {
 			[[ "${part}" == "poweroff" ]] || \
 			[[ "${part}" == "reboot" ]]; then
 			echo -e '#!/bin/sh\n' > "${T}/${part}" || die
-			echo -e "exec /usr/bin/systemctl ${part}\n" >> "${T}/${part}" || die
+			echo -e "exec /sbin/init.d/exec.sh ${part} /usr/bin/systemctl ${part}\n" >> "${T}/${part}" || die
 			exeinto "/${init_dir}"
 			doexe "${T}/${part}"
 		else
