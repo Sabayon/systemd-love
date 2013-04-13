@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-inherit eutils multilib pam pax-utils systemd user
+inherit eutils autotools multilib pam pax-utils systemd user
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/polkit"
@@ -55,6 +55,7 @@ pkg_setup() {
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-W_define.patch
+	epatch "${FILESDIR}"/0001-Detect-logind-at-runtime.patch
 
 	sed -i -e 's|unix-group:wheel|unix-user:0|' src/polkitbackend/*-default.rules || die #401513
 
@@ -63,6 +64,8 @@ src_prepare() {
 			-e '/mozjs/s:185:187:g' \
 			configure src/polkitbackend/polkitbackendjsauthority.c || die
 	fi
+
+	eautoreconf
 }
 
 src_configure() {
