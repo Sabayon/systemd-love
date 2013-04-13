@@ -4,9 +4,9 @@ After=syslog.target
 
 [Service]
 Type=dbus
-BusName=org.moblin.connman
+BusName=net.connman
 ExecStart=/usr/sbin/connmand --nodaemon
 
 [Install]
 WantedBy=multi-user.target
-Alias=org.moblin.connman.service
+Alias=net.connman.service
