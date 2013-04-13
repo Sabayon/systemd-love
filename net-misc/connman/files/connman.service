@@ -8,5 +8,5 @@ BusName=org.moblin.connman
 ExecStart=/usr/sbin/connmand --nodaemon
 
 [Install]
-WantedBy=network.target
+WantedBy=multi-user.target
 Alias=org.moblin.connman.service
