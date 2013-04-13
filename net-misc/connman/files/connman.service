@@ -1,0 +1,12 @@
+[Unit]
+Description=Network Connection Manager Daemon
+After=syslog.target
+
+[Service]
+Type=dbus
+BusName=org.moblin.connman
+ExecStart=/usr/sbin/connmand --nodaemon
+
+[Install]
+WantedBy=network.target
+Alias=org.moblin.connman.service
