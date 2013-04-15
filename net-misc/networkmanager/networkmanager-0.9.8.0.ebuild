@@ -108,6 +108,9 @@ src_prepare() {
 	# Restore Klink functionality
 	epatch "${FILESDIR}/${PN}-0.9.4.0-restore-klink-support.patch"
 
+	# Runtime detect systemd || consolekit
+	epatch "${FILESDIR}/0001-core-runtime-detect-logind-and-ConsoleKit-2.patch"
+
 	# Use python2.7 shebangs for test scripts
 	sed -e 's@\(^#!.*python\)@\12.7@' \
 		-i */tests/*.py || die
