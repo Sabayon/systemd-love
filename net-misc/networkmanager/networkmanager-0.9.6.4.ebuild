@@ -113,6 +113,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-init-need-logger-2.patch"
 	# Restore Klink functionality
 	epatch "${FILESDIR}/${PN}-0.9.4.0-restore-klink-support.patch"
+	# Runtime detect systemd || consolekit
+	epatch "${FILESDIR}/0001-core-runtime-detect-logind-and-ConsoleKit.patch"
 
 	epatch_user
 
