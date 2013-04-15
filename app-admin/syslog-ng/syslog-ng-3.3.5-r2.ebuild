@@ -65,7 +65,7 @@ src_configure() {
 	fi
 	econf \
 		--disable-dependency-tracking \
-		--disable-systemd \
+		$(systemd_with_unitdir) \
 		--with-ivykis=internal \
 		--sysconfdir=/etc/syslog-ng \
 		--localstatedir=/var/lib/misc \
@@ -128,6 +128,17 @@ pkg_postinst() {
 		elog "It is highly recommended that app-admin/logrotate be emerged to"
 		elog "manage the log files.  ${PN} installs a file in /etc/logrotate.d"
 		elog "for logrotate to use."
+		echo
+	fi
+
+	if has_version sys-apps/systemd; then
+		echo
+		elog "If you intend to use syslog-ng together with the systemd journal,"
+		elog "pleasse make sure to configure it to listen accordingly, e.g. replace"
+		elog "unix-stream(\"/dev/log\" max-connections(256));"
+		elog "with"
+		elog "unix-dgram(\"/run/systemd/journal/syslog\" max-connections(256));"
+		elog "in /etc/syslog-ng/syslog-ng.conf"
 		echo
 	fi
 }
