@@ -22,7 +22,7 @@ src_install() {
 
 	# !!! all these units must be moved to individual packages !!!
 	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles-server/*
-	systemd_dounit "${FILESDIR}"/services-desktop/*
+	systemd_dounit "${FILESDIR}"/services-server/*
 
 	# Files in portage cannot contain a literal '@' character. Therfore,
 	# convert the code string "_at" into an '@' before installing.
