@@ -21,7 +21,6 @@ src_install() {
 	# Thanks to the guy who made this possible !
 
 	# !!! all these units must be moved to individual packages !!!
-	systemd_dounit "${FILESDIR}"/services-basic/*
 	systemd_dounit "${FILESDIR}"/services-server/*
 	systemd_dotmpfilesd "${FILESDIR}"/tmpfiles-server/*
 	systemd_dounit "${FILESDIR}"/services-desktop/*
