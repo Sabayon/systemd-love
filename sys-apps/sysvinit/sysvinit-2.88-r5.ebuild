@@ -34,6 +34,8 @@ src_prepare() {
 	# eselect-sysvinit support, rename INIT #define
 	sed -i "/^#define INIT/ s:/sbin/init:/${SYSVINITS_DIR}/${SYSVINIT_NAME}/init:" \
 		"${S}/src/paths.h" || die "cannot replace /sbin/init path"
+	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${SYSVINITS_DIR}/${SYSVINIT_NAME}:/sbin:;" \
+		"${S}/src/init.h" || die "cannot replace /sbin/init path"
 
 	# mountpoint/sulogin/utmpdump have moved to util-linux
 	sed -i -r \
