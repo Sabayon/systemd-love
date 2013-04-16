@@ -135,6 +135,7 @@ src_install() {
 	newinitd "${CONFDIR}/samba4.initd-r1" samba
 	newconfd "${CONFDIR}/samba4.confd" samba
 
+	systemd_dotmpfilesd "${FILESDIR}"/samba.conf
 	systemd_dounit "${FILESDIR}"/nmbd.service
 	systemd_dounit "${FILESDIR}"/smbd.{service,socket}
 	systemd_newunit "${FILESDIR}"/smbd_at.service 'smbd@.service'

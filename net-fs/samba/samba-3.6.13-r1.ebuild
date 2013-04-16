@@ -424,6 +424,7 @@ src_install() {
 		"${ED}/var"/{run,lib/samba/private,lib/samba,lib,cache/samba,cache,} \
 	#	|| die "tried to remove non-empty dirs, this seems like a bug in the ebuild"
 
+	systemd_dotmpfilesd "${FILESDIR}"/samba.conf
 	systemd_dounit "${FILESDIR}"/nmbd.service
 	systemd_dounit "${FILESDIR}"/smbd.{service,socket}
 	systemd_newunit "${FILESDIR}"/smbd_at.service 'smbd@.service'
