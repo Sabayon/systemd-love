@@ -1,12 +1,13 @@
 [Unit]
-Description=Postfix Mail Daemon
+Description=Postfix Mail Transport Agent
 After=network.target
 
 [Service]
 Type=forking
+ExecStartPre=-/usr/bin/newaliases
 ExecStart=/usr/sbin/postfix start
 ExecStop=/usr/sbin/postfix stop
-Restart=always
+ExecReload=/usr/sbin/postfix reload
 
 [Install]
 WantedBy=multi-user.target
