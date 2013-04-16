@@ -38,6 +38,7 @@ src_install() {
 	exeinto /usr/libexec
 	doexe "${FILESDIR}"/{mysqld-prepare-db-dir,mysqld-wait-ready}
 	systemd_dounit "${FILESDIR}/mysqld.service"
+	systemd_dotmpfilesd "${FILESDIR}/MySQL.tmpfiles.d"
 }
 
 # Official test instructions:
