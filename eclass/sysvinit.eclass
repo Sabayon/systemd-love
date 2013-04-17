@@ -29,7 +29,7 @@ DEFAULT_SYSVINIT="sysvinit"
 # @ECLASS-VARIABLE: SYSVINIT_PARTS
 # @DESCRIPTION:
 # List of sysvinit executables that must be placed inside ${SYSVINITS_DIR}/${PN}
-SYSVINIT_PARTS="halt init poweroff reboot"
+SYSVINIT_PARTS="init"
 
 # FUNCTION: pkg_sysvinit_setup
 # @USAGE: pkg_sysvinit_setup

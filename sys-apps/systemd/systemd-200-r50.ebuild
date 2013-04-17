@@ -192,13 +192,6 @@ src_install() {
 	for part in "${parts[@]}"; do
 		if [[ "${part}" == "init" ]]; then
 			dosym "../../../usr/bin/systemd" "/${init_dir}/${part}"
-		elif [[ "${part}" == "halt" ]] || \
-			[[ "${part}" == "poweroff" ]] || \
-			[[ "${part}" == "reboot" ]]; then
-			echo -e '#!/bin/sh\n' > "${T}/${part}" || die
-			echo -e "exec /sbin/init.d/exec.sh ${part} /usr/bin/systemctl ${part}\n" >> "${T}/${part}" || die
-			exeinto "/${init_dir}"
-			doexe "${T}/${part}"
 		else
 			die "unsupported eselect-init part ${part}"
 		fi
