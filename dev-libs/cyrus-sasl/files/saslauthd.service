@@ -3,11 +3,10 @@ Description=SASL Authentication Daemon
 
 [Service]
 Type=forking
+PIDFile=/run/saslauthd/saslauthd.pid
 EnvironmentFile=/etc/conf.d/saslauthd
-ExecStart=/usr/sbin/saslauthd -a pam
-#ExecStart=/usr/sbin/saslauthd ${SASLAUTHD_OPTS}
+ExecStart=/usr/sbin/saslauthd $SASLAUTHD_OPTS
 ExecStop=/bin/kill -15 $MAINPID
-PIDFile=/var/lib/sasl2/saslauthd.pid
 
 [Install]
-WantedBy=postfix.service
+WantedBy=multi-user.target

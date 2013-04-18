@@ -1,0 +1,10 @@
+[Unit]
+Description=SASL pwcheck daemon
+After=syslog.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/pwcheck
+
+[Install]
+WantedBy=multi-user.target
