@@ -16,7 +16,7 @@ else
 	MY_PV=$(replace_version_separator 3 '-')
 	SRC_URI="https://github.com/zfsonlinux/${PN}/archive/${PN}-${MY_PV}.tar.gz"
 	S="${WORKDIR}/${PN}-${PN}-${MY_PV}"
-	KEYWORDS="~amd64"
+	KEYWORDS="~amd64 ~x86"
 fi
 
 inherit bash-completion-r1 flag-o-matic toolchain-funcs autotools-utils udev systemd
