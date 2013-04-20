@@ -1,0 +1,21 @@
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+depend() {
+	need xdm
+	after sshd
+}
+
+start() {
+	ebegin "Starting VirtualGL"
+	/usr/libexec/vgl-helper.sh start
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping VirtualGL"
+	/usr/libexec/vgl-helper.sh stop
+	eend $?
+}
