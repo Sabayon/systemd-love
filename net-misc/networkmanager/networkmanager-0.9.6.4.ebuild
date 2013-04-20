@@ -182,7 +182,7 @@ src_install() {
 
 	# Provide openrc net dependency only when nm is connected
 	exeinto /etc/NetworkManager/dispatcher.d
-	newexe "${FILESDIR}/10-openrc-status-r3" 10-openrc-status
+	newexe "${FILESDIR}/10-openrc-status-r4" 10-openrc-status
 	sed -e "s:@EPREFIX@:${EPREFIX}:g" \
 		-i "${ED}/etc/NetworkManager/dispatcher.d/10-openrc-status" || die
 
