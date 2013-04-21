@@ -137,6 +137,9 @@ src_prepare() {
 	# automagic selinux :/
 	epatch "${FILESDIR}/${PN}-3.6.0-selinux-automagic.patch"
 
+	# Fix timed login setup when systemd is enabled but system is using openrc
+	epatch "${FILESDIR}/0001-gdm-display-fix-get_timed_login_details-when-systemd.patch"
+
 	# make gdm-fallback session the default if USE=-gnome-shell
 	if ! use gnome-shell; then
 		sed -e "s:'gdm-shell':'gdm-fallback':" \

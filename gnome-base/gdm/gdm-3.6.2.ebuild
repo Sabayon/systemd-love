@@ -136,6 +136,9 @@ src_prepare() {
 	# automagic selinux :/
 	epatch "${FILESDIR}/${PN}-3.6.0-selinux-automagic.patch"
 
+	# Fix timed login setup when systemd is enabled but system is using openrc
+	epatch "${FILESDIR}/0001-gdm-display-fix-get_timed_login_details-when-systemd.patch"
+
 	# spurious unicode characters causing build failure, bug #449062
 	# https://bugzilla.gnome.org/show_bug.cgi?id=690842
 	LC_ALL=C epatch "${FILESDIR}/${PN}-3.6.2-gdm-slave.xml-unicode.patch"
