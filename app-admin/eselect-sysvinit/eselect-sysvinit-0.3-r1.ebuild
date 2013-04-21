@@ -32,3 +32,7 @@ src_install() {
 	exeinto /sbin/init.d
 	doexe "${FILESDIR}"/exec.sh
 }
+
+pkg_postinst() {
+	pkg_sysvinit_setup
+}
