@@ -28,7 +28,7 @@ src_install() {
 	# systemd unit installation
 	exeinto /usr/libexec
 	doexe "${FILESDIR}"/{mysqld-prepare-db-dir,mysqld-wait-ready}
-	systemd_dounit "${FILESDIR}/mysqld.service"
+	systemd_newunit "${FILESDIR}/mysqld_at.service" "mysqld@.service"
 	systemd_dotmpfilesd "${FILESDIR}/mysql.conf"
 }
 
