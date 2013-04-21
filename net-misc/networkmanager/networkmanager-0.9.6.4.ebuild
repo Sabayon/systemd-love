@@ -115,6 +115,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-0.9.4.0-restore-klink-support.patch"
 	# Runtime detect systemd || consolekit
 	epatch "${FILESDIR}/0001-core-runtime-detect-logind-and-ConsoleKit.patch"
+	# make boot arg "nonm" disable NetworkManager startup
+	epatch "${FILESDIR}/networkmanager-nonm-cmdline-support.patch"
 
 	epatch_user
 

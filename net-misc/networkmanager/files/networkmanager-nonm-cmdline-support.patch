@@ -1,0 +1,10 @@
+--- a/data/NetworkManager.service.in
++++ b/data/NetworkManager.service.in
+@@ -3,6 +3,7 @@ Description=Network Manager
+ After=syslog.target
+ Wants=network.target
+ Before=network.target
++ConditionKernelCommandLine=!nonm
+ 
+ [Service]
+ Type=dbus

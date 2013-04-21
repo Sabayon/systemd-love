@@ -110,6 +110,8 @@ src_prepare() {
 
 	# Runtime detect systemd || consolekit
 	epatch "${FILESDIR}/0001-core-runtime-detect-logind-and-ConsoleKit-2.patch"
+	# make boot arg "nonm" disable NetworkManager startup
+	epatch "${FILESDIR}/networkmanager-nonm-cmdline-support.patch"
 
 	# Use python2.7 shebangs for test scripts
 	sed -e 's@\(^#!.*python\)@\12.7@' \
