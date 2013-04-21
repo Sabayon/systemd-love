@@ -43,10 +43,6 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-0.6.21-gentoo-system-users.patch"
 
-	# Patches from 0.6.31
-	epatch "${FILESDIR}/${P}-login-history-variant.patch"
-	epatch "${FILESDIR}/${P}-xsession-typo.patch"
-
 	use vala && vala_src_prepare
 	gnome2_src_prepare
 }
