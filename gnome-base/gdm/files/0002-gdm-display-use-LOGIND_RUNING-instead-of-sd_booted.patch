@@ -1,0 +1,43 @@
+From 978c5d5be8e26815f5ecbcf680c38e8d010ef5af Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sun, 21 Apr 2013 17:32:09 +0100
+Subject: [PATCH 2/2] gdm-display: use LOGIND_RUNING() instead of sd_booted()
+
+When validating the timed login seat number, check if logind is running
+rather than the whole systemd. logind can run separetely from systemd.
+---
+ daemon/gdm-display.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/daemon/gdm-display.c b/daemon/gdm-display.c
+index 2a621df..db4ae69 100644
+--- a/daemon/gdm-display.c
++++ b/daemon/gdm-display.c
+@@ -33,14 +33,11 @@
+ #include <glib/gi18n.h>
+ #include <glib-object.h>
+ 
+-#ifdef WITH_SYSTEMD
+-#include <systemd/sd-daemon.h>
+-#endif
+-
+ #include "gdm-display.h"
+ #include "gdm-display-glue.h"
+ #include "gdm-display-access-file.h"
+ 
++#include "gdm-common.h"
+ #include "gdm-settings-direct.h"
+ #include "gdm-settings-keys.h"
+ 
+@@ -365,7 +362,7 @@ gdm_display_real_get_timed_login_details (GdmDisplay *display,
+          * can support auto/timed login on auxilliary seats in the
+          * systemd path.
+          */
+-        if (sd_booted() > 0) {
++        if (LOGIND_RUNNING()) {
+                 if (g_strcmp0 (display->priv->seat_id, "seat0") != 0) {
+                         goto out;
+                 }
+-- 
+1.8.1.5
+

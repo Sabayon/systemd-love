@@ -139,6 +139,7 @@ src_prepare() {
 
 	# Fix timed login setup when systemd is enabled but system is using openrc
 	epatch "${FILESDIR}/0001-gdm-display-fix-get_timed_login_details-when-systemd.patch"
+	epatch "${FILESDIR}/0002-gdm-display-use-LOGIND_RUNING-instead-of-sd_booted.patch"
 
 	# make gdm-fallback session the default if USE=-gnome-shell
 	if ! use gnome-shell; then
