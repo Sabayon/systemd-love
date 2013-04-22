@@ -16,7 +16,7 @@ SETTINGSD_NAME="${SETTINGSD_NAME:-${PN}}"
 
 # @ECLASS-VARIABLE: DEFAULT_SETTINGSD
 # @DESCRIPTION:
-# # Current distribution default settingsd implementation
+# Current distribution default settingsd implementation
 DEFAULT_SETTINGSD="openrc"
 
 # FUNCTION: pkg_settingsd_setup
