@@ -193,6 +193,10 @@ src_install() {
 	done
 
 	settingsd_setup_install
+
+	# OpenRC -> systemd migration script
+	exeinto /usr/libexec
+	doexe "${FILESDIR}/openrc-to-systemd.sh"
 }
 
 pkg_preinst() {
@@ -201,6 +205,10 @@ pkg_preinst() {
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 	kernel_is -ge ${MINKV//./ } || ewarn "Kernel version at least ${MINKV} required"
 	check_extra_config
+
+	# openrc -> systemd migration script
+	[ -x "${ROOT}/usr/libexec/openrc-to-systemd.sh" ]] || \
+		export MIGRATE_SYSTEMD=1
 }
 
 optfeature() {
@@ -261,6 +269,14 @@ pkg_postinst() {
 	fi
 	pkg_sysvinit_setup
 	pkg_settingsd_setup
+
+	if [ "${MIGRATE_SYSTEMD}" = "1" ]; then
+		ewarn "Automatically enabling some systemd units basing on your"
+		ewarn "openrc configuration"
+		if has_version "sys-apps/openrc"; then
+			/usr/libexec/openrc-to-systemd.sh | /bin/sh
+		fi
+	fi
 }
 
 pkg_prerm() {
