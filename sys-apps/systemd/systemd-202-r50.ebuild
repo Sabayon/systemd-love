@@ -263,8 +263,6 @@ optfeature() {
 }
 
 pkg_preinst() {
-	default
-
 	# openrc -> systemd migration script
 	[ -x "${ROOT}/usr/libexec/openrc-to-systemd.sh" ]] || \
 		export MIGRATE_SYSTEMD=1
@@ -334,7 +332,6 @@ pkg_prerm() {
 }
 
 pkg_postrm() {
-	default
 	pkg_sysvinit_setup
 	pkg_settingsd_setup
 }
