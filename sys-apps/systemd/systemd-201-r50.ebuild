@@ -264,7 +264,7 @@ optfeature() {
 
 pkg_preinst() {
 	# openrc -> systemd migration script
-	[ -x "${ROOT}/usr/libexec/openrc-to-systemd.sh" ]] || \
+	[[ -x "${ROOT}/usr/libexec/openrc-to-systemd.sh" ]] || \
 		export MIGRATE_SYSTEMD=1
 }
 
