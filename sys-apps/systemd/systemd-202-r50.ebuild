@@ -317,7 +317,7 @@ pkg_postinst() {
 		ewarn "Automatically enabling some systemd units basing on your"
 		ewarn "openrc configuration"
 		if has_version "sys-apps/openrc"; then
-			/usr/libexec/openrc-to-systemd.sh | /bin/sh
+			/usr/libexec/openrc-to-systemd.sh | /bin/sh 2>/dev/null
 		fi
 	fi
 }
