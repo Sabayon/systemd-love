@@ -1,4 +1,4 @@
-From 4454fc4cf8315d66312f777b37c4b1f7ef60e967 Mon Sep 17 00:00:00 2001
+From 1e107df8b9c13a0861abd27ab1d6ee2a2e697751 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 17:40:31 +0100
 Subject: [PATCH 7/7] gen_initramfs: differentiate between vital udev rules and
@@ -9,10 +9,10 @@ Subject: [PATCH 7/7] gen_initramfs: differentiate between vital udev rules and
  1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index bc2fd0f..b53d5d4 100755
+index 2e1a924..ecc245e 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
-@@ -533,14 +533,27 @@ append_udev() {
+@@ -534,14 +534,27 @@ append_udev() {
  		/lib/udev/rules.d/60-persistent-storage.rules
  		/lib/udev/rules.d/64-md-raid.rules
  		/lib/udev/rules.d/80-drivers.rules

@@ -1,24 +1,6 @@
-From 0f888085581b44f3151915523b41b1e93b98426d Mon Sep 17 00:00:00 2001
-From: Fabio Erculiani <lxnay@sabayon.org>
-Date: Fri, 26 Apr 2013 00:21:01 +0100
-Subject: [PATCH 3/7] genkernel: add simple udev support, include udev into
- initramfs if --udev
-
----
- defaults/initrd.defaults |  2 ++
- defaults/initrd.scripts  | 15 +++++++++++++++
- defaults/linuxrc         | 46 +++++++++++++++++++++++++++++++++++++---------
- doc/genkernel.8.txt      |  4 ++++
- gen_cmdline.sh           |  6 ++++++
- gen_determineargs.sh     |  1 +
- gen_initramfs.sh         | 35 +++++++++++++++++++++++++++++++++++
- 7 files changed, 100 insertions(+), 9 deletions(-)
-
-diff --git a/defaults/initrd.defaults b/defaults/initrd.defaults
-index cbf18f3..217a413 100755
---- a/defaults/initrd.defaults
-+++ b/defaults/initrd.defaults
-@@ -55,6 +55,8 @@ ROOT_LINKS='bin sbin lib lib32 lib64 boot usr opt emul'
+--- genkernel-3.4.45.orig/defaults/initrd.defaults
++++ genkernel-3.4.45/defaults/initrd.defaults
+@@ -55,6 +55,8 @@ ROOT_LINKS='bin sbin lib lib32 lib64 boo
  ROOT_TREES='etc root home var'
  KSUFF='.ko'
  
@@ -27,10 +9,8 @@ index cbf18f3..217a413 100755
  REAL_ROOT=''
  CONSOLE='/dev/console'
  NEW_ROOT='/newroot'
-diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
-index 970d3e7..c5c5930 100644
---- a/defaults/initrd.scripts
-+++ b/defaults/initrd.scripts
+--- genkernel-3.4.45.orig/defaults/initrd.scripts
++++ genkernel-3.4.45/defaults/initrd.scripts
 @@ -344,6 +344,19 @@ fs_type_in_use() {
  	cut -d ' ' -f 3 < /proc/mounts | fgrep -q "${fs_type}"
  }
@@ -60,10 +40,8 @@ index 970d3e7..c5c5930 100644
  }
  
  startiscsi() {
-diff --git a/defaults/linuxrc b/defaults/linuxrc
-index 4bbe5e2..210831f 100644
---- a/defaults/linuxrc
-+++ b/defaults/linuxrc
+--- genkernel-3.4.45.orig/defaults/linuxrc
++++ genkernel-3.4.45/defaults/linuxrc
 @@ -22,6 +22,7 @@ fi
  
  mount -t proc -o noexec,nosuid,nodev proc /proc >/dev/null 2>&1
@@ -130,26 +108,27 @@ index 4bbe5e2..210831f 100644
  
  # Apply scan delay if specified
  sdelay
-@@ -914,6 +933,15 @@ good_msg "Booting (initramfs)"
+@@ -914,10 +933,17 @@ good_msg "Booting (initramfs)"
  cd "${CHROOT}"
  mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null
  
 +is_udev && udevadm settle
 +
-+mount --move /run "$CHROOT"/run || bad_msg "Unable to move /run"
-+
 +if is_udev
 +then
-+	killall udevd || bad_msg "Unable to terminate udevd"
++	udevadm control --exit || bad_msg "Unable to terminate udevd"
 +fi
 +
  # If devtmpfs is mounted, try move it to the new root
  # If that fails, try to unmount all possible mounts of
  # devtmpfs as stuff breaks otherwise
-diff --git a/doc/genkernel.8.txt b/doc/genkernel.8.txt
-index f1cc814..ef50542 100644
---- a/doc/genkernel.8.txt
-+++ b/doc/genkernel.8.txt
+-for fs in /dev /sys /proc
++for fs in /run /dev /sys /proc
+ do
+ 	if grep -qs "$fs" /proc/mounts
+ 	then
+--- genkernel-3.4.45.orig/doc/genkernel.8.txt
++++ genkernel-3.4.45/doc/genkernel.8.txt
 @@ -247,6 +247,10 @@ INITIALIZATION
  *--*[*no-*]*keymap*::
      Enables or disables keymap selection at boot.
@@ -161,10 +140,8 @@ index f1cc814..ef50542 100644
  *--*[*no-*]*lvm*::
  	Adds or skips in LVM support from static binaries if they exist on the
  	system,  or compile static LVM binaries if static ones do not exist.
-diff --git a/gen_cmdline.sh b/gen_cmdline.sh
-index 5503bb5..2cb3410 100755
---- a/gen_cmdline.sh
-+++ b/gen_cmdline.sh
+--- genkernel-3.4.45.orig/gen_cmdline.sh
++++ genkernel-3.4.45/gen_cmdline.sh
 @@ -86,6 +86,8 @@ longusage() {
    echo "	--do-keymap-auto	Forces keymap selection at boot"
    echo "	--keymap		Enables keymap selection support"
@@ -185,10 +162,8 @@ index 5503bb5..2cb3410 100755
  		--lvm|--no-lvm)
  			CMD_LVM=`parse_optbool "$*"`
  			print_info 2 "CMD_LVM: ${CMD_LVM}"
-diff --git a/gen_determineargs.sh b/gen_determineargs.sh
-index afc6fe3..1394995 100755
---- a/gen_determineargs.sh
-+++ b/gen_determineargs.sh
+--- genkernel-3.4.45.orig/gen_determineargs.sh
++++ genkernel-3.4.45/gen_determineargs.sh
 @@ -111,6 +111,7 @@ determine_real_args() {
  	set_config_with_override BOOL   SYMLINK              CMD_SYMLINK
  	set_config_with_override STRING INSTALL_MOD_PATH     CMD_INSTALL_MOD_PATH
@@ -197,10 +172,8 @@ index afc6fe3..1394995 100755
  	set_config_with_override BOOL   LVM                  CMD_LVM
  	set_config_with_override BOOL   DMRAID               CMD_DMRAID
  	set_config_with_override BOOL   ISCSI                CMD_ISCSI
-diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 784c0cc..836c85f 100755
---- a/gen_initramfs.sh
-+++ b/gen_initramfs.sh
+--- genkernel-3.4.45.orig/gen_initramfs.sh
++++ genkernel-3.4.45/gen_initramfs.sh
 @@ -563,6 +563,40 @@ append_gpg() {
  	rm -rf "${TEMP}/initramfs-gpg-temp" > /dev/null
  }
@@ -250,6 +223,3 @@ index 784c0cc..836c85f 100755
  	append_data 'auxilary' "${BUSYBOX}"
  	append_data 'busybox' "${BUSYBOX}"
  	isTrue "${CMD_E2FSPROGS}" && append_data 'e2fsprogs'
--- 
-1.8.1.5
-

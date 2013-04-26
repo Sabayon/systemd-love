@@ -1,4 +1,4 @@
-From 6e95ef2857cfd2e14f0d7c506b4f3a38038404e0 Mon Sep 17 00:00:00 2001
+From 65389ad14cefd853c14d26b89052a9933ffb9b90 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 08:47:06 +0100
 Subject: [PATCH 2/7] gen_compile: use LVM from system for the initramfs
@@ -190,7 +190,7 @@ index 4f0a0fc..a26eb9b 100755
  		if [ ! -f "${i}" ]
  		then
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 836c85f..4947d69 100755
+index 836c85f..fc149e9 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -320,51 +320,31 @@ append_lvm(){
@@ -228,7 +228,7 @@ index 836c85f..4947d69 100755
 +	done
 +
 +	copy_binaries "${TEMP}/initramfs-lvm-temp" \
-+		/sbin/lvm /sbin/dmsetup /sbin/dmeventd
++		/sbin/lvm /sbin/dmsetup
 +
 +	if [ -x /sbin/lvm ]
  	then

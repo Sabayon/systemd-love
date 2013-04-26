@@ -1,7 +1,7 @@
-From 096632ac4a44fbba8fb20b591f747500fc0d6b5e Mon Sep 17 00:00:00 2001
+From 927e86b3833bbd80712ca50904151295565dcd9a Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 17:35:16 +0100
-Subject: [PATCH 6/6] gen_initramfs: use portage-utils to determine the lvm2
+Subject: [PATCH 6/7] gen_initramfs: use portage-utils to determine the lvm2
  udev rules files
 
 ---
@@ -9,10 +9,10 @@ Subject: [PATCH 6/6] gen_initramfs: use portage-utils to determine the lvm2
  1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index ebf3802..bc2fd0f 100755
+index 17b84f3..2e1a924 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
-@@ -318,14 +318,9 @@ append_lvm(){
+@@ -319,14 +319,9 @@ append_lvm(){
  	mkdir -p "${TEMP}/initramfs-lvm-temp/etc/lvm/"
  	print_info 1 'LVM: Adding support (copying binaries from system)...'
  
