@@ -1,7 +1,7 @@
-From 97cd446e8512ddec511b7c14bb86f825fa582cb8 Mon Sep 17 00:00:00 2001
+From a7e349ab094830fbb1470709a2a5963f4ea78a48 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 11:31:06 +0100
-Subject: [PATCH 5/7] gen_compile: use DMRAID from system, don't compile our
+Subject: [PATCH 3/7] gen_compile: use DMRAID from system, don't compile our
  own
 
 ---
@@ -9,13 +9,13 @@ Subject: [PATCH 5/7] gen_compile: use DMRAID from system, don't compile our
  gen_compile.sh                                     |  49 ---------
  gen_determineargs.sh                               |   2 -
  gen_funcs.sh                                       |   2 +-
- gen_initramfs.sh                                   |  20 ++--
+ gen_initramfs.sh                                   |  21 ++--
  .../dmraid/dmraid-1.0.0.rc16-3-staticlink.patch    |  18 ----
  patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch  |  11 ---
  .../dmraid/dmraid-1.0.0_rc16-return-all-sets.patch |  11 ---
  .../dmraid-1.0.0_rc16-static-build-fixes.patch     | 110 ---------------------
  .../dmraid/dmraid-1.0.0_rc16-undo-p-rename.patch   |  13 ---
- 10 files changed, 8 insertions(+), 233 deletions(-)
+ 10 files changed, 9 insertions(+), 233 deletions(-)
  delete mode 100644 patches/dmraid/dmraid-1.0.0.rc16-3-staticlink.patch
  delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-as-needed2.patch
  delete mode 100644 patches/dmraid/dmraid-1.0.0_rc16-return-all-sets.patch
@@ -132,10 +132,10 @@ index a26eb9b..6721d62 100755
  		if [ ! -f "${i}" ]
  		then
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index eecb46d..dd8ae64 100755
+index 4947d69..5fc0979 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
-@@ -274,19 +274,13 @@ append_dmraid(){
+@@ -274,19 +274,14 @@ append_dmraid(){
  	then
  		rm -r "${TEMP}/initramfs-dmraid-temp/"
  	fi
@@ -159,6 +159,7 @@ index eecb46d..dd8ae64 100755
 +	copy_binaries "${TEMP}/initramfs-dmraid-temp" \
 +		/usr/sbin/dmraid /usr/sbin/dmevent_tool
 +
++	cd "${TEMP}/initramfs-dmraid-temp"
  	log_future_cpio_content
  	find . -print | cpio ${CPIO_ARGS} --append -F "${CPIO}" \
  			|| gen_die "compressing dmraid cpio"
