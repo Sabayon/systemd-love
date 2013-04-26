@@ -48,6 +48,7 @@ IUSE="crypt cryptsetup ibm selinux"  # Keep 'crypt' in to keep 'use crypt' below
 DEPEND="sys-fs/e2fsprogs
 	selinux? ( sys-libs/libselinux )"
 RDEPEND="${DEPEND}
+		app-portage/portage-utils
 		cryptsetup? ( sys-fs/cryptsetup )
 		app-arch/cpio
 		>=app-misc/pax-utils-0.2.1
