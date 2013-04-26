@@ -1,7 +1,6 @@
 [Unit]
 Description=rsync daemon
 After=networking.target
-After=syslog.target
 
 [Service]
 Type=simple

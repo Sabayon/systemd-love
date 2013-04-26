@@ -1,7 +1,6 @@
 [Unit]
 Description=at (job queue) daemon
 After=networking.target
-After=syslog.target
 
 [Service]
 Type=forking

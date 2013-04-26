@@ -20,7 +20,6 @@
 [Unit]
 Description=MySQL database server
 ConditionPathExists=/etc/mysql/my%I.cnf
-After=syslog.target
 After=network.target
 
 [Service]

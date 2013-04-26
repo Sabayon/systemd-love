@@ -1,6 +1,5 @@
 [Unit]
 Description=Network Connection Manager Daemon
-After=syslog.target
 
 [Service]
 Type=dbus

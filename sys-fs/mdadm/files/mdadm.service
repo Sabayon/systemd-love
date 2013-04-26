@@ -1,6 +1,5 @@
 [Unit]
 Description=Software RAID monitoring and management
-After=syslog.target
 ConditionPathExists=/etc/mdadm.conf
 
 [Service]
