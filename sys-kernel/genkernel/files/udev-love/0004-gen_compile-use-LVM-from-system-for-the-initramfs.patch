@@ -1,7 +1,7 @@
-From 83b4a0ef1a2ec07d3ae14f1a35186112192ee31a Mon Sep 17 00:00:00 2001
+From 6e95ef2857cfd2e14f0d7c506b4f3a38038404e0 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 08:47:06 +0100
-Subject: [PATCH 4/7] gen_compile: use LVM from system for the initramfs
+Subject: [PATCH 2/7] gen_compile: use LVM from system for the initramfs
 
 ---
  defaults/initrd.scripts                            | 21 ++++---
@@ -21,10 +21,10 @@ Subject: [PATCH 4/7] gen_compile: use LVM from system for the initramfs
  delete mode 100644 patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
 
 diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
-index c5c5930..d585935 100644
+index 4b765d6..3bdc52e 100755
 --- a/defaults/initrd.scripts
 +++ b/defaults/initrd.scripts
-@@ -680,30 +680,33 @@ startVolumes() {
+@@ -670,30 +670,33 @@ startVolumes() {
  
  	if [ "${USE_LVM_NORMAL}" = '1' ]
  	then
@@ -190,7 +190,7 @@ index 4f0a0fc..a26eb9b 100755
  		if [ ! -f "${i}" ]
  		then
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 836c85f..eecb46d 100755
+index 836c85f..4947d69 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -320,51 +320,31 @@ append_lvm(){
@@ -211,7 +211,7 @@ index 836c85f..eecb46d 100755
 -			cp /sbin/dmsetup.static "${TEMP}/initramfs-lvm-temp/bin/dmsetup"
 -		fi
 -	elif false && [ -e '/sbin/lvm' ] && LC_ALL="C" ldd /sbin/lvm|grep -q 'not a dynamic executable'
-+	print_info 1 '          LVM: Adding support (copying binaries from system)...'
++	print_info 1 'LVM: Adding support (copying binaries from system)...'
 +
 +	udev_files="
 +		/lib/udev/rules.d/95-dm-notify.rules
@@ -228,7 +228,7 @@ index 836c85f..eecb46d 100755
 +	done
 +
 +	copy_binaries "${TEMP}/initramfs-lvm-temp" \
-+		/sbin/lvm /sbin/dmsetup
++		/sbin/lvm /sbin/dmsetup /sbin/dmeventd
 +
 +	if [ -x /sbin/lvm ]
  	then
