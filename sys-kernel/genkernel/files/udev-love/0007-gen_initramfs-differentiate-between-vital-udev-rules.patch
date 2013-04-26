@@ -1,0 +1,49 @@
+From 4454fc4cf8315d66312f777b37c4b1f7ef60e967 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 26 Apr 2013 17:40:31 +0100
+Subject: [PATCH 7/7] gen_initramfs: differentiate between vital udev rules and
+ non-vital
+
+---
+ gen_initramfs.sh | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index bc2fd0f..b53d5d4 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -533,14 +533,27 @@ append_udev() {
+ 		/lib/udev/rules.d/60-persistent-storage.rules
+ 		/lib/udev/rules.d/64-md-raid.rules
+ 		/lib/udev/rules.d/80-drivers.rules
+-		/lib/udev/rules.d/99-systemd.rules
+ 		/etc/udev/udev.conf
+ 	"
+-	for f in ${udev_files}; do
++	udev_maybe_files="
++		/lib/udev/rules.d/99-systemd.rules
++	"
++	is_maybe=0
++	for f in ${udev_files} -- ${udev_maybe_files}; do
++		[ "${f}" = "--" ] && {
++			is_maybe=1;
++			continue;
++		}
+ 		mkdir -p "${TEMP}/initramfs-udev-temp"/$(dirname "${f}") || \
+ 			gen_die "cannot create rules.d directory"
+-		cp "${f}" "${TEMP}/initramfs-udev-temp/${f}" || \
+-			gen_die "cannot copy ${f} from system"
++		cp "${f}" "${TEMP}/initramfs-udev-temp/${f}"
++		if [ "${?}" != "0" ]
++		then
++			[ "${is_maybe}" = "0" ] && \
++				gen_die "cannot copy ${f} from udev"
++			[ "${is_maybe}" = "1" ] && \
++				print_warning 1 "cannot copy ${f} from udev"
++		fi
+ 	done
+ 
+ 	# Copy binaries
+-- 
+1.8.1.5
+
