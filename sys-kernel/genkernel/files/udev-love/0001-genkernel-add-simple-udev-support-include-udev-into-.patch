@@ -196,7 +196,7 @@
 +	udev_files="
 +		/lib/udev/rules.d/50-udev-default.rules
 +		/lib/udev/rules.d/60-persistent-storage.rules
-+		/lib/udev/rules.d/64-md-raid.rules
++
 +		/lib/udev/rules.d/80-drivers.rules
 +		/lib/udev/rules.d/99-systemd.rules
 +		/etc/udev/udev.conf

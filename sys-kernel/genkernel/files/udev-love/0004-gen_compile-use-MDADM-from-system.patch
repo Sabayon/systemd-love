@@ -1,31 +1,17 @@
-From a0a21979d043838d8e0cd71fe79e46578a926566 Mon Sep 17 00:00:00 2001
+From 5fcce9072e9838a138994244543bd8258f1b4e04 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 11:41:35 +0100
 Subject: [PATCH 4/7] gen_compile: use MDADM from system
 
 ---
- defaults/initrd.scripts                     |  2 +-
  defaults/software.sh                        |  5 ----
  gen_compile.sh                              | 39 -----------------------------
  gen_determineargs.sh                        |  2 --
  gen_initramfs.sh                            | 36 ++++++++++----------------
  patches/mdadm/3.1.4/mdadm-3.1.4-z-now.patch | 26 -------------------
- 6 files changed, 14 insertions(+), 96 deletions(-)
+ 5 files changed, 13 insertions(+), 95 deletions(-)
  delete mode 100644 patches/mdadm/3.1.4/mdadm-3.1.4-z-now.patch
 
-diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
-index a6d1026..ad5c44b 100755
---- a/defaults/initrd.scripts
-+++ b/defaults/initrd.scripts
-@@ -634,7 +634,7 @@ startVolumes() {
- 		ln -sf /dev/device-mapper /dev/mapper/control
- 	fi
- 	
--	if [ "${USE_MDADM}" = '1' ]
-+	if [ "${USE_MDADM}" = '1' ] && is_mdev
- 	then
- 		if [ -e '/sbin/mdadm' ]
- 		then
 diff --git a/defaults/software.sh b/defaults/software.sh
 index dbae78e..f242b5b 100644
 --- a/defaults/software.sh
@@ -113,7 +99,7 @@ index e5371ad..6d006a6 100755
  	BLKID_BINCACHE=`arch_replace "${BLKID_BINCACHE}"`
  	FUSE_BINCACHE=`arch_replace "${FUSE_BINCACHE}"`
 diff --git a/gen_initramfs.sh b/gen_initramfs.sh
-index 3558d33..17b84f3 100755
+index 8130970..a591a97 100755
 --- a/gen_initramfs.sh
 +++ b/gen_initramfs.sh
 @@ -357,34 +357,24 @@ append_mdadm(){
