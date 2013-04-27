@@ -108,6 +108,15 @@
  
  # Apply scan delay if specified
  sdelay
+@@ -375,7 +394,7 @@ fi
+ setup_btrfsctl
+ 
+ # Setup md device nodes if they dont exist
+-setup_md_device
++is_mdev && setup_md_device
+ 
+ # Scan volumes
+ startVolumes
 @@ -914,10 +933,17 @@ good_msg "Booting (initramfs)"
  cd "${CHROOT}"
  mkdir "${CHROOT}/proc" "${CHROOT}/sys" "${CHROOT}/run" 2>/dev/null

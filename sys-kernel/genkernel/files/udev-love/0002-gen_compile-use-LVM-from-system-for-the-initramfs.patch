@@ -1,10 +1,10 @@
-From 65389ad14cefd853c14d26b89052a9933ffb9b90 Mon Sep 17 00:00:00 2001
+From 96471537cfa29465166f341d3de06ebdd92896f4 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Fri, 26 Apr 2013 08:47:06 +0100
 Subject: [PATCH 2/7] gen_compile: use LVM from system for the initramfs
 
 ---
- defaults/initrd.scripts                            | 21 ++++---
+ defaults/initrd.scripts                            | 33 ++++++-----
  defaults/software.sh                               |  5 --
  gen_compile.sh                                     | 48 ----------------
  gen_determineargs.sh                               |  2 -
@@ -14,30 +14,38 @@ Subject: [PATCH 2/7] gen_compile: use LVM from system for the initramfs
  patches/lvm/2.02.28/no-export-dynamic.patch        | 22 --------
  .../2.02.74/lvm2-2.02.72-no-export-dynamic.patch   | 37 ------------
  .../2.02.88/lvm2-2.02.72-no-export-dynamic.patch   | 37 ------------
- 10 files changed, 36 insertions(+), 215 deletions(-)
+ 10 files changed, 44 insertions(+), 219 deletions(-)
  delete mode 100644 patches/lvm/2.02.28/filter-sysfs-inc-sys-stat.patch
  delete mode 100644 patches/lvm/2.02.28/no-export-dynamic.patch
  delete mode 100644 patches/lvm/2.02.74/lvm2-2.02.72-no-export-dynamic.patch
  delete mode 100644 patches/lvm/2.02.88/lvm2-2.02.72-no-export-dynamic.patch
 
 diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
-index 4b765d6..3bdc52e 100755
+index 4b765d6..a6d1026 100755
 --- a/defaults/initrd.scripts
 +++ b/defaults/initrd.scripts
-@@ -670,30 +670,33 @@ startVolumes() {
+@@ -670,30 +670,37 @@ startVolumes() {
  
  	if [ "${USE_LVM_NORMAL}" = '1' ]
  	then
 -		if [ -e '/bin/lvm' ]
 +		if [ -e '/sbin/lvm' ]
  		then
- 			for dev in ${RAID_DEVICES}
- 			do
- 				setup_md_device "${dev}"
- 			done
+-			for dev in ${RAID_DEVICES}
+-			do
+-				setup_md_device "${dev}"
+-			done
  
 -			# This is needed for /bin/lvm to accept the following logic
 -			lvm_commands="#! /bin/lvm"
++			if is_mdev
++			then
++				for dev in ${RAID_DEVICES}
++				do
++					setup_md_device "${dev}"
++				done
++			fi
++
 +			# This is needed for /sbin/lvm to accept the following logic
 +			lvm_commands="#! /sbin/lvm"
  
