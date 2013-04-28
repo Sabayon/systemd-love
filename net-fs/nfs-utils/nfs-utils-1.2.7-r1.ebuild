@@ -116,6 +116,7 @@ src_install() {
 		-e "/^NFS_NEEDED_SERVICES=/s:=.*:=\"${opt_need}\":" \
 		"${ED}"/etc/conf.d/nfs || die #234132
 	systemd_dounit "${FILESDIR}"/nfsd.service
+	systemd_dounit "${FILESDIR}"/rpc-statd.service
 }
 
 pkg_postinst() {
