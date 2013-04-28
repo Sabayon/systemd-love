@@ -6,7 +6,7 @@ Before=rpcbind.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/rpcbind
+ExecStart=/sbin/rpcbind
 Restart=always
 
 [Install]
