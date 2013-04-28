@@ -117,6 +117,7 @@ src_install() {
 		"${ED}"/etc/conf.d/nfs || die #234132
 	systemd_dounit "${FILESDIR}"/nfsd.service
 	systemd_dounit "${FILESDIR}"/rpc-statd.service
+	systemd_dounit "${FILESDIR}"/rpc-mountd.service
 }
 
 pkg_postinst() {
