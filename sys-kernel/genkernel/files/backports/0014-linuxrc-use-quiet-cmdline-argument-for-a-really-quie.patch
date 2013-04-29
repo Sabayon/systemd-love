@@ -1,7 +1,7 @@
-From 72edc894e7c72d516da424644afb72c6ba69f4a9 Mon Sep 17 00:00:00 2001
+From 87fbf00867162d33ec774012d54692c8131a5569 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Thu, 25 Apr 2013 11:45:19 +0100
-Subject: [PATCH 1/7] linuxrc: use "quiet" cmdline argument for a really quiet
+Subject: [PATCH 1/2] linuxrc: use "quiet" cmdline argument for a really quiet
  initramfs initialization
 
 "quiet" is already used by the kernel to avoid printing messages on the
@@ -19,7 +19,7 @@ This has also the advantage of improving the boot speed.
 diff --git a/defaults/initrd.scripts b/defaults/initrd.scripts
 old mode 100755
 new mode 100644
-index ff724b5..365eeca
+index ff724b5..c1969d1
 --- a/defaults/initrd.scripts
 +++ b/defaults/initrd.scripts
 @@ -16,15 +16,16 @@ modules_scan() {
@@ -72,7 +72,7 @@ index ff724b5..365eeca
  
 -good_msg() {	
 +good_msg() {
-+	[ -n "${QUIET}" ] && return 0
++	[ -n "${QUIET}" ] && [ -z "${DEBUG}" ] && return 0
 +
  	msg_string=$1
  	msg_string="${msg_string:-...}"
