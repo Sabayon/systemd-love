@@ -6,10 +6,10 @@ EAPI=5
 
 KDE_HANDBOOK="optional"
 KMNAME="kde-workspace"
-inherit kde4-meta flag-o-matic user systemd
+inherit eutils kde4-meta flag-o-matic user systemd
 
 DESCRIPTION="KDE login manager, similar to xdm and gdm"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 IUSE="+consolekit debug kerberos pam"
 
 DEPEND="
@@ -39,7 +39,8 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
-	"${FILESDIR}/0001-Detect-logind-at-runtime.patch"
+	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
+	"${FILESDIR}/kde-workspace-4.10.2-kdm-logind-multiseat.patch"
 )
 
 pkg_setup() {
@@ -84,6 +85,7 @@ src_install() {
 		-e "/#TerminateServer=/s/^.*$/TerminateServer=true/" \
 		-e "s|^.*DataDir=.*$|#&\nDataDir=${EPREFIX}${KDM_HOME}|" \
 		-e "s|^.*FaceDir=.*$|#&\nFaceDir=${EPREFIX}${KDM_HOME}/faces|" \
+		-e "s|#BootManager=Grub|BootManager=Grub2|" \
 		-i "${ED}"/usr/share/config/kdm/kdmrc \
 		|| die "Failed to set ServerTimeout and SessionsDirs correctly in kdmrc."
 
@@ -100,6 +102,16 @@ src_install() {
 	newins "${FILESDIR}"/kdm-logrotate kdm
 
 	systemd_dounit "${FILESDIR}/${PN}.service"
+	exeinto /usr/libexec
+	doexe "${FILESDIR}/kdm-servercmd.sh"
+
+	# Complete systemd-logind runtime support
+	local srv_cmd=$(grep "^ServerCmd=" "${ED}"/usr/share/config/kdm/kdmrc | cut -d= -f2-)
+	[ -z "${srv_cmd}" ] && die "Cannot determine ServerCmd="
+	sed -i "s;%SERVER_CMD%;${srv_cmd};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
+	local srv_cmdar=( ${srv_cmd} )
+	local srv_args="${srv_cmdar[@]:1}"
+	sed -i "s;%SERVER_ARGS%;${srv_args};g" "${ED}/usr/libexec/kdm-servercmd.sh" || die
 }
 
 pkg_postinst() {
