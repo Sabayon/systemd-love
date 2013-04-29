@@ -1,14 +1,14 @@
-From 40203d4e97c93d7df53dda3214db61a833a41260 Mon Sep 17 00:00:00 2001
+From ebb778ff7053303e3ee68c77c9d7e6aaceaf86ab Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Mon, 29 Apr 2013 10:46:23 +0100
 Subject: [PATCH] Detect logind at runtime
 
 ---
- kdm/backend/client.c | 40 ++++++++++++++++++++++++----------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ kdm/backend/client.c | 42 +++++++++++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
 
 diff --git a/kdm/backend/client.c b/kdm/backend/client.c
-index bdff6da..b126d63 100644
+index bdff6da..a2760b6 100644
 --- a/kdm/backend/client.c
 +++ b/kdm/backend/client.c
 @@ -88,6 +88,9 @@ extern int loginsuccess(const char *User, const char *Host, const char *Tty, cha
@@ -38,6 +38,15 @@ index bdff6da..b126d63 100644
  # ifdef HAVE_VTS
      if (td->serverVT > 0)
          sprintf(ckDeviceBuf, "/dev/tty%d", td->serverVT);
+@@ -1390,7 +1394,7 @@ startClient(volatile int *pid)
+                        "Warning: Cannot open ConsoleKit session: %s",
+                        error.message);
+             dbus_error_free(&error);
+-        } else {
++        } else if (!LOGIND_RUNNING()) {
+             logError("Cannot open ConsoleKit session, likely OOM\n");
+             displayStr(V_MSG_ERR,
+                        "Warning: Cannot open ConsoleKit session.");
 @@ -1452,8 +1456,10 @@ startClient(volatile int *pid)
          env = setEnv(env, "KRBTKFILE", krbtkfile);
  #endif

@@ -41,6 +41,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
 	"${FILESDIR}/kdebase-workspace-4.4.92-kdm_plymouth081.patch"
 	"${FILESDIR}/kde-workspace-4.10.2-kdm-logind-multiseat.patch"
+	"${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 )
 
 pkg_setup() {
@@ -165,13 +166,4 @@ pkg_postinst() {
 	# gotten this wrong
 	use prefix || chown root:kdm "${EROOT}${KDM_HOME}"
 	chmod 1770 "${EROOT}${KDM_HOME}"
-
-	if use consolekit; then
-		echo
-		elog "You have compiled 'kdm' with consolekit support. If you want to use kdm,"
-		elog "make sure consolekit daemon is running and started at login time"
-		elog
-		elog "rc-update add consolekit default && /etc/init.d/consolekit start"
-		echo
-	fi
 }
