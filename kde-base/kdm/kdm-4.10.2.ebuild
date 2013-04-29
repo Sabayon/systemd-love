@@ -39,6 +39,7 @@ KMEXTRA="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4-gentoo-xinitrc.d.patch"
+	"${FILESDIR}/0001-Detect-logind-at-runtime.patch"
 )
 
 pkg_setup() {
