@@ -78,6 +78,7 @@ src_prepare() {
 
 	# Backport some git patches
 	epatch "${FILESDIR}"/backports/*.patch
+	epatch "${FILESDIR}"/0001-gen_compile-fix-iscsi-module-path-install-s-RELEASE-.patch
 	# Add some more improvements that ease debugging
 	epatch "${FILESDIR}"/debug-improvements/*.patch
 	# Add systemd-udev support as device manager
