@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -48,6 +48,9 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${P}-fix-event-check-bug.patch
 
+	# Also see #422495
+	epatch "${FILESDIR}"/${P}-pam-use-system-local-login.patch
+
 	# this replaces the bootstrap/autogen script in most packages
 	eautoreconf
 
@@ -71,7 +74,8 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS README TODO || die
-	systemd_dounit "${FILESDIR}"/lxdm.service
+
+	systemd_dounit "${FILESDIR}/lxdm.service"
 }
 
 pkg_postinst() {
