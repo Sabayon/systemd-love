@@ -1,4 +1,4 @@
-From c25fab59646bd3d22f62e6e9d8e3dcd9df1de119 Mon Sep 17 00:00:00 2001
+From 6230e8a92341804ad3f033c2016f6d350468b772 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Mon, 15 Apr 2013 22:51:20 +0100
 Subject: [PATCH] core: runtime detect logind and ConsoleKit
@@ -6,19 +6,19 @@ Subject: [PATCH] core: runtime detect logind and ConsoleKit
 If --with-session-tracking=systemd, but logind is not currently running, the code
 now falls back to ConsoleKit.
 ---
- configure.ac                     |   3 +-
+ configure.ac                     |   4 +-
  src/Makefile.am                  |  10 +-
  src/nm-session-monitor-ck.c      | 509 -------------------------------
  src/nm-session-monitor-systemd.c | 268 ----------------
  src/nm-session-monitor.c         | 641 +++++++++++++++++++++++++++++++++++++++
  src/nm-session-monitor.h         |   6 +
- 6 files changed, 652 insertions(+), 785 deletions(-)
+ 6 files changed, 653 insertions(+), 785 deletions(-)
  delete mode 100644 src/nm-session-monitor-ck.c
  delete mode 100644 src/nm-session-monitor-systemd.c
  create mode 100644 src/nm-session-monitor.c
 
 diff --git a/configure.ac b/configure.ac
-index 91afabe..8ed6e98 100644
+index 91afabe..5b6ef8a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -368,7 +368,7 @@ if test "x$with_systemdsystemunitdir" != xno; then
@@ -30,7 +30,15 @@ index 91afabe..8ed6e98 100644
  if test "z$with_session_tracking" = "z"; then
      # Default to ConsoleKit session tracking like we used before
      with_session_tracking=ck
-@@ -387,6 +387,7 @@ AC_SUBST(SYSTEMD_CFLAGS)
+@@ -378,6 +378,7 @@ case $with_session_tracking in
+     ck|none|no) ;;
+     systemd)
+         PKG_CHECK_MODULES(SYSTEMD, [libsystemd-login])
++        AC_DEFINE([SESSION_TRACKING_SYSTEMD], 1, [Define to 1 if libsystemd-login is available])
+         ;;
+     *)
+ 	AC_MSG_ERROR(--with-session-tracking must be one of [none, ck, systemd])
+@@ -387,6 +388,7 @@ AC_SUBST(SYSTEMD_CFLAGS)
  AC_SUBST(SYSTEMD_LIBS)
  AM_CONDITIONAL(SESSION_TRACKING_CK, test "x$with_session_tracking" = "xck")
  AM_CONDITIONAL(SESSION_TRACKING_SYSTEMD, test "x$with_session_tracking" = "xsystemd")
@@ -1521,5 +1529,5 @@ index 77ea9a0..ac3dec5 100644
  typedef struct _NMSessionMonitorClass    NMSessionMonitorClass;
  
 -- 
-1.8.1.5
+1.8.2.1
 

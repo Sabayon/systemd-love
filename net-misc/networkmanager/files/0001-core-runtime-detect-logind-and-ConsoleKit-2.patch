@@ -1,4 +1,4 @@
-From 289752fe8b859a5957881e84a6bf1936fe948d57 Mon Sep 17 00:00:00 2001
+From 763110685a1e582d54f5cd7ea3c98c3b2596f30a Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Mon, 15 Apr 2013 23:25:59 +0100
 Subject: [PATCH] core: runtime detect logind and ConsoleKit
@@ -6,20 +6,20 @@ Subject: [PATCH] core: runtime detect logind and ConsoleKit
 If --with-session-tracking=systemd, but logind is not currently running, the code
 now falls back to ConsoleKit.
 ---
- configure.ac                     |   3 +-
+ configure.ac                     |   4 +-
  src/Makefile.am                  |  10 +-
  src/nm-session-monitor-systemd.c | 268 ----------------
  src/nm-session-monitor.c         | 641 +++++++++++++++++++++++++++++++++++++++
  src/nm-session-monitor.h         |   6 +
- 5 files changed, 652 insertions(+), 276 deletions(-)
+ 5 files changed, 653 insertions(+), 276 deletions(-)
  delete mode 100644 src/nm-session-monitor-systemd.c
  create mode 100644 src/nm-session-monitor.c
 
 diff --git a/configure.ac b/configure.ac
-index cc66e9b..90eef87 100644
+index cc66e9b..230caa6 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -281,7 +281,8 @@ AS_IF([! (echo "$with_session_tracking" | grep -q -E "^(systemd|consolekit|no)$"
+@@ -281,11 +281,13 @@ AS_IF([! (echo "$with_session_tracking" | grep -q -E "^(systemd|consolekit|no)$"
  	AC_MSG_ERROR([--with-session-tracking must be systemd/consolekit/no, not $with_session_tracking]))
  # add conditionals and subtitutions
  AM_CONDITIONAL(SESSION_TRACKING_CK, test "$with_session_tracking" = "consolekit")
@@ -29,6 +29,11 @@ index cc66e9b..90eef87 100644
  if test "$with_session_tracking" = "systemd"; then
  	PKG_CHECK_MODULES(SYSTEMD_LOGIN, [libsystemd-login])
  	AC_SUBST(SYSTEMD_LOGIN_CFLAGS)
+ 	AC_SUBST(SYSTEMD_LOGIN_LIBS)
++	AC_DEFINE([SESSION_TRACKING_SYSTEMD], 1, [Define to 1 if libsystemd-login is available])
+ fi
+ if test "$with_session_tracking" = "consolekit"; then
+ 	AC_SUBST(CKDB_PATH, /var/run/ConsoleKit/database)
 diff --git a/src/Makefile.am b/src/Makefile.am
 index 9d306a7..6ec3c80 100644
 --- a/src/Makefile.am
@@ -997,5 +1002,5 @@ index 77ea9a0..ac3dec5 100644
  typedef struct _NMSessionMonitorClass    NMSessionMonitorClass;
  
 -- 
-1.8.1.5
+1.8.2.1
 
