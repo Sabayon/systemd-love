@@ -43,3 +43,4 @@ blacklist nouveau
 
 # Known to cause kernel OOPS at boot
 blacklist ite_cir
+blacklist snd-pcsp
