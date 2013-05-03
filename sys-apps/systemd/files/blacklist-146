@@ -43,4 +43,6 @@ blacklist nouveau
 
 # Known to cause kernel OOPS at boot
 blacklist ite_cir
+
+# Prevents kernel message: Driver 'pcspkr' is already registered, aborting...
 blacklist snd-pcsp
