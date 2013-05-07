@@ -4,17 +4,21 @@
 
 EAPI=5
 
-VERSION_BUSYBOX="1.20.2"
-BB_HOME="http://www.busybox.net/downloads"
-COMMON_URI="${BB_HOME}/busybox-${VERSION_BUSYBOX}.tar.bz2"
-
 EGIT_REPO_URI="git://github.com/Sabayon/genkernel-next.git"
-EGIT_COMMIT="v${PV}"
+if [[ "${PV}" != "9999" ]]; then
+	EGIT_COMMIT="v${PV}"
+fi
 inherit git-2 bash-completion-r1 eutils
 
+VERSION_BUSYBOX="1.20.2"
+
 S="${WORKDIR}/${PN}"
-SRC_URI="${COMMON_URI}"
-KEYWORDS="~amd64 ~arm ~x86"
+SRC_URI="http://www.busybox.net/downloads/busybox-${VERSION_BUSYBOX}.tar.bz2"
+if [[ "${PV}" == "9999" ]]; then
+	KEYWORDS=""
+else
+	KEYWORDS="~amd64 ~arm ~x86"
+fi
 
 DESCRIPTION="Gentoo automatic kernel building scripts ('next' branch)"
 HOMEPAGE="http://www.gentoo.org"
@@ -28,17 +32,18 @@ DEPEND="app-text/asciidoc
 	sys-fs/e2fsprogs
 	selinux? ( sys-libs/libselinux )"
 RDEPEND="${DEPEND}
-		cryptsetup? ( sys-fs/cryptsetup )
-		dmraid? ( sys-fs/dmraid )
-		gpg? ( app-crypt/gnupg )
-		iscsi? ( sys-block/open-iscsi )
-		plymouth? ( sys-boot/plymouth )
-		app-portage/portage-utils
-		app-arch/cpio
-		>=app-misc/pax-utils-0.2.1
-		!<sys-apps/openrc-0.9.9
-		sys-fs/dmraid
-		sys-fs/lvm2"
+	!sys-kernel/genkernel
+	cryptsetup? ( sys-fs/cryptsetup )
+	dmraid? ( sys-fs/dmraid )
+	gpg? ( app-crypt/gnupg )
+	iscsi? ( sys-block/open-iscsi )
+	plymouth? ( sys-boot/plymouth )
+	app-portage/portage-utils
+	app-arch/cpio
+	>=app-misc/pax-utils-0.2.1
+	!<sys-apps/openrc-0.9.9
+	sys-fs/dmraid
+	sys-fs/lvm2"
 
 src_prepare() {
 	use selinux && sed -i 's/###//g' "${S}"/gen_compile.sh
