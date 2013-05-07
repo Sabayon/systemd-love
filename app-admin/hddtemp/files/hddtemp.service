@@ -1,0 +1,11 @@
+[Unit]
+Description=Hard drive temperature monitor daemon
+Documentation=man:hddtemp(8)
+
+[Service]
+Environment=HDDTEMP_OPTIONS=--listen=127.0.0.1
+EnvironmentFile=-/etc/conf.d/hddtemp
+ExecStart=/usr/sbin/hddtemp -dF $HDDTEMP_OPTIONS
+
+[Install]
+WantedBy=multi-user.target
