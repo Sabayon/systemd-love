@@ -60,14 +60,13 @@ src_install() {
 
 	newinitd "${FILESDIR}"/${PN}-3-init.d ${PN}
 	newinitd "${FILESDIR}"/fancontrol-init.d-2 fancontrol
+	systemd_dounit "${FILESDIR}"/fancontrol.service
 
 	if use sensord; then
 		newconfd "${FILESDIR}"/sensord-conf.d sensord
 		newinitd "${FILESDIR}"/sensord-4-init.d sensord
+		systemd_dounit "${FILESDIR}"/sensord.service
 	fi
-
-	systemd_dounit "${FILESDIR}"/sensord.service
-	systemd_dounit "${FILESDIR}"/fancontrol.service
 
 	dodoc CHANGES CONTRIBUTORS INSTALL README \
 		doc/{donations,fancontrol.txt,fan-divisors,libsensors-API.txt,progs,temperature-sensors,vid}
