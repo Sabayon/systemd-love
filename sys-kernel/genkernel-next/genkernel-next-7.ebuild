@@ -4,16 +4,18 @@
 
 EAPI=5
 
-EGIT_REPO_URI="git://github.com/Sabayon/genkernel-next.git"
 if [[ "${PV}" != "9999" ]]; then
+	SRC_URI="http://dev.gentoo.org/~lxnay/genkernel-next/${P}.tar.xz"
+else
 	EGIT_COMMIT="v${PV}"
+	EGIT_REPO_URI="git://github.com/Sabayon/genkernel-next.git"
+	inherit git-2
 fi
-inherit git-2 bash-completion-r1 eutils
+inherit bash-completion-r1 eutils
 
 VERSION_BUSYBOX="1.20.2"
 
-S="${WORKDIR}/${PN}"
-SRC_URI="http://www.busybox.net/downloads/busybox-${VERSION_BUSYBOX}.tar.bz2"
+SRC_URI="${SRC_URI} http://www.busybox.net/downloads/busybox-${VERSION_BUSYBOX}.tar.bz2"
 if [[ "${PV}" == "9999" ]]; then
 	KEYWORDS=""
 else
