@@ -20,6 +20,7 @@ SRV_syslog_ng="syslog-ng"
 SRV_ufw="ufw"
 SRV_vixie_cron="vixie-cron"
 SRV_x_setup="x-setup"
+SRV_avahi_daemon="avahi-daemon"
 
 # Display Manager is defined inside /etc/conf.d/xdm
 SRV_xdm="_get_dm"

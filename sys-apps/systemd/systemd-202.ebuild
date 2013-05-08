@@ -240,7 +240,7 @@ src_install() {
 
 	# OpenRC -> systemd migration script
 	exeinto /usr/libexec
-	doexe "${FILESDIR}/openrc-to-systemd.sh"
+	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
 }
 
 optfeature() {
@@ -259,7 +259,7 @@ optfeature() {
 
 pkg_preinst() {
 	# openrc -> systemd migration script
-	[[ -x "${ROOT}/usr/libexec/openrc-to-systemd.sh" ]] || \
+	[[ -x "${ROOT}/usr/libexec/openrc-to-systemd-2.sh" ]] || \
 		export MIGRATE_SYSTEMD=1
 }
 
@@ -312,7 +312,7 @@ pkg_postinst() {
 		ewarn "Automatically enabling some systemd units basing on your"
 		ewarn "openrc configuration"
 		if has_version "sys-apps/openrc"; then
-			/usr/libexec/openrc-to-systemd.sh | /bin/sh 2>/dev/null
+			/usr/libexec/openrc-to-systemd-2.sh | /bin/sh 2>/dev/null
 		fi
 	fi
 }
