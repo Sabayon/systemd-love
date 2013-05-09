@@ -12,7 +12,7 @@ SRC_URI="mirror://xfce/src/xfce/${PN}/${PV%.*}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~x86-solaris"
-IUSE="consolekit debug policykit udev +xscreensaver"
+IUSE="consolekit debug policykit systemd udev +xscreensaver"
 
 COMMON_DEPEND=">=dev-libs/dbus-glib-0.98
 	x11-apps/iceauth
@@ -22,7 +22,8 @@ COMMON_DEPEND=">=dev-libs/dbus-glib-0.98
 	>=xfce-base/libxfce4util-4.10
 	>=xfce-base/libxfce4ui-4.10
 	>=xfce-base/xfconf-4.10
-	!xfce-base/xfce-utils"
+	!xfce-base/xfce-utils
+	systemd? ( >sys-apps/systemd-197 )"
 RDEPEND="${COMMON_DEPEND}
 	x11-apps/xrdb
 	x11-misc/xdg-user-dirs
@@ -49,6 +50,7 @@ pkg_setup() {
 	XFCONF=(
 		--docdir="${EPREFIX}"/usr/share/doc/${PF}
 		--with-xsession-prefix="${EPREFIX}"/usr
+		$(use_enable systemd)
 		$(xfconf_use_debug)
 		)
 
