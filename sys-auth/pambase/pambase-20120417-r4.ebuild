@@ -43,6 +43,7 @@ DEPEND="app-portage/portage-utils"
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-systemd-2.patch
 	epatch "${FILESDIR}"/${P}-lastlog-silent.patch
+	epatch "${FILESDIR}"/${P}-move-motd-to-login.patch
 }
 
 src_compile() {

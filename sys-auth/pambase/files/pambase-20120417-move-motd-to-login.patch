@@ -1,0 +1,22 @@
+--- pambase-20120417.orig/login.in
++++ pambase-20120417/login.in
+@@ -5,4 +5,7 @@ account    include	system-local-login
+ password   include	system-local-login
+ 
+ session    optional pam_lastlog.so DEBUG
++#if HAVE_MOTD
++session		optional	pam_motd.so motd=/etc/motd
++#endif
+ session    include	system-local-login
+--- pambase-20120417.orig/system-login.in
++++ pambase-20120417/system-login.in
+@@ -56,9 +56,6 @@ session		optional	pam_gnome_keyring.so a
+ #if HAVE_SELINUX
+ session		required	pam_selinux.so multiple open
+ #endif
+-#if HAVE_MOTD
+-session		optional	pam_motd.so motd=/etc/motd
+-#endif
+ #if HAVE_MAIL
+ session		optional	pam_mail.so
+ #endif
