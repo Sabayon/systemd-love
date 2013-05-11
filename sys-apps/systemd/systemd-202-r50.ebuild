@@ -15,7 +15,7 @@ LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
-	keymap +kmod lzma +openrc pam policykit python qrcode selinux static-libs
+	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
 	tcpd vanilla xattr"
 
 MINKV="2.6.32"
@@ -130,6 +130,7 @@ src_configure() {
 		$(use_enable introspection)
 		$(use_enable keymap)
 		$(use_enable kmod)
+		$(use_enable logind)
 		$(use_enable lzma xz)
 		$(use_enable pam)
 		$(use_enable policykit polkit)
