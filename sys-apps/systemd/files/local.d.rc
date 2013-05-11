@@ -1,0 +1,20 @@
+#!/bin/bash
+
+ACTION="${1}"
+
+SCRIPTS=()
+if [ "${ACTION}" = "start" ]; then
+	SCRIPTS+=( /etc/local.d/*.start )
+elif [ "${ACTION}" = "stop" ]; then
+	SCRIPTS+=( /etc/local.d/*.stop )
+else
+	echo "Invalid action: ${ACTION}" >&2
+	exit 1
+fi
+
+for f in "${SCRIPTS[@]}"; do
+	[ -x "${f}" ] && {
+		echo "Executing: ${f}";
+		"${f}";
+	}
+done

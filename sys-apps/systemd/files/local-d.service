@@ -1,0 +1,13 @@
+[Unit]
+Description=Execute start/stop scripts in /etc/local.d in an OpenRC compatible way
+ConditionPathIsDirectory=/etc/local.d
+After=network.target
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+ExecStart=/etc/local.d.rc start
+ExecStart=/etc/local.d.rc stop
+
+[Install]
+WantedBy=multi-user.target

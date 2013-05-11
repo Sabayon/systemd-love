@@ -246,6 +246,11 @@ src_install() {
 	# OpenRC -> systemd migration script
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
+
+	# systemd unit for /etc/local.d/*.{start,stop}
+	exeinto /etc
+	doexe "${FILESDIR}/local.d.rc"
+	systemd_dounit "${FILESDIR}"/local-d.service
 }
 
 optfeature() {
