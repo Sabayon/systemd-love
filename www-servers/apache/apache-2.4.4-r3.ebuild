@@ -146,6 +146,9 @@ src_prepare() {
 	fi
 	apache-2_src_prepare
 	sed -i -e 's/! test -f/test -f/' "${GENTOO_PATCHDIR}"/init/apache2.initd || die "Failed to fix init script"
+
+	# mod_systemd support
+	epatch "${FILESDIR}/httpd-2.4.3-mod_systemd.patch"
 }
 
 src_install() {
@@ -172,8 +175,10 @@ src_install() {
 		dodir /var/run/apache_ssl_mutex || die "Failed to mkdir ssl_mutex"
 	fi
 
-	systemd_dounit "${FILESDIR}/apache2.service"
+	systemd_newunit "${FILESDIR}/apache2.4.service" "apache2.service"
 	systemd_dotmpfilesd "${FILESDIR}/apache.conf"
+	insinto /etc/apache2/modules.d
+	doins "${FILESDIR}/00_systemd.conf"
 }
 
 pkg_postinst()

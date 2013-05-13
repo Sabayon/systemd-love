@@ -114,6 +114,6 @@ src_prepare() {
 src_install() {
 	apache-2_src_install
 
-	systemd_dounit "${FILESDIR}/apache2.service"
+	systemd_newunit "${FILESDIR}/apache2.2.service" "apache2.service"
 	systemd_dotmpfilesd "${FILESDIR}/apache.conf"
 }
