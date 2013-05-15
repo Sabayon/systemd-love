@@ -23,7 +23,6 @@ REQUIRED_USE="
 	modemmanager? ( ppp )
 	^^ ( nss gnutls )
 	^^ ( dhclient dhcpcd )
-	?? ( consolekit systemd )
 "
 
 # gobject-introspection-0.10.3 is needed due to gnome bug 642300
