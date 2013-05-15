@@ -13,7 +13,7 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="amd64 arm ppc64 x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
 	tcpd vanilla xattr"
@@ -242,6 +242,14 @@ src_install() {
 	# OpenRC -> systemd migration script
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
+
+	# systemd unit for /etc/local.d/*.{start,stop}
+	exeinto /etc
+	doexe "${FILESDIR}/local.d.rc"
+	systemd_dounit "${FILESDIR}"/local-d.service
+
+	# logind init script for OpenRC
+	newinitd "${FILESDIR}/logind.init.d" "logind"
 }
 
 optfeature() {
