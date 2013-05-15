@@ -1,14 +1,15 @@
-From 978c5d5be8e26815f5ecbcf680c38e8d010ef5af Mon Sep 17 00:00:00 2001
-From: Fabio Erculiani <lxnay@sabayon.org>
-Date: Sun, 21 Apr 2013 17:32:09 +0100
-Subject: [PATCH 2/2] gdm-display: use LOGIND_RUNING() instead of sd_booted()
-
-When validating the timed login seat number, check if logind is running
-rather than the whole systemd. logind can run separetely from systemd.
----
- daemon/gdm-display.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
+diff --git a/common/gdm-common.h b/common/gdm-common.h
+index 1a0c258..a379657 100644
+--- a/common/gdm-common.h
++++ b/common/gdm-common.h
+@@ -27,6 +27,7 @@
+ #include "gdm-common-unknown-origin.h"
+ 
+ #define GDM_CUSTOM_SESSION  "custom"
++#define LOGIND_RUNNING() (access("/run/systemd/seats/", F_OK) >= 0)
+ 
+ G_BEGIN_DECLS
+ 
 diff --git a/daemon/gdm-display.c b/daemon/gdm-display.c
 index 2a621df..db4ae69 100644
 --- a/daemon/gdm-display.c
