@@ -139,7 +139,7 @@ src_configure() {
 		--with-iptables=/sbin/iptables \
 		--enable-concheck \
 		--with-crypto=$(usex nss nss gnutls) \
-		--with-session-tracking=$(usex consolekit consolekit $(usex systemd systemd no)) \
+		--with-session-tracking=$(usex systemd systemd $(usex consolekit consolekit no)) \
 		--with-suspend-resume=$(usex systemd systemd upower) \
 		$(use_enable doc) \
 		$(use_enable introspection) \
