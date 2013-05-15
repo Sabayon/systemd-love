@@ -8,6 +8,7 @@ start_stop_daemon_args="--quiet --background"
 description="Login Service and ConsoleKit replacement"
 
 depend() {
-	need localmount
-	after urandom
+	need dbus
+	use logger
+	before xdm
 }
