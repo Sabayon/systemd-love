@@ -16,4 +16,8 @@ depend() {
 
 start_pre() {
 	checkpath -d -o root:root -m 0755 /run/systemd
+	if ! mountpoint -q /sys/fs/cgroup/systemd; then
+		checkpath -d -o root:root -m 0755 /sys/fs/cgroup/systemd
+		mount -t cgroup -o nosuid,noexec,nodev,none,name=systemd systemd /sys/fs/cgroup/systemd
+	fi
 }
