@@ -1,0 +1,42 @@
+From 4bd277c1c2a6d37ee7123b42a844b7f4641c624c Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Fri, 17 May 2013 13:46:48 +0200
+Subject: [PATCH] gsm-systemd: don't use sd_booted but rather LOGIND_RUNNING
+ for detecting logind
+
+---
+ gnome-session/gsm-systemd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gnome-session/gsm-systemd.c b/gnome-session/gsm-systemd.c
+index a848108..b38a533 100644
+--- a/gnome-session/gsm-systemd.c
++++ b/gnome-session/gsm-systemd.c
+@@ -33,7 +33,6 @@
+ #include <pwd.h>
+ 
+ #include <systemd/sd-login.h>
+-#include <systemd/sd-daemon.h>
+ 
+ #include <glib.h>
+ #include <glib-object.h>
+@@ -49,6 +48,7 @@
+ #define SD_INTERFACE         "org.freedesktop.login1.Manager"
+ #define SD_SEAT_INTERFACE    "org.freedesktop.login1.Seat"
+ #define SD_SESSION_INTERFACE "org.freedesktop.login1.Session"
++#define LOGIND_RUNNING() (access("/run/systemd/seats/", F_OK) >= 0)
+ 
+ struct _GsmSystemdPrivate
+ {
+@@ -618,7 +618,7 @@ gsm_systemd_new (void)
+ {
+         GsmSystemd *manager;
+ 
+-        if (sd_booted () <= 0)
++        if (!LOGIND_RUNNING())
+                 return NULL;
+ 
+         manager = g_object_new (GSM_TYPE_SYSTEMD, NULL);
+-- 
+1.8.2.1
+
