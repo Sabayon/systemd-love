@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # sysvinit exec wrapper that redirects the calls
 # to the currently running sysvinit implementation if
 # /run/running.sysvinit is found.
