@@ -70,7 +70,6 @@ src_install() {
 	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/clamav.conf"
 	systemd_newunit "${FILESDIR}/clamd_at.service" "clamd@.service"
 	systemd_dounit "${FILESDIR}/clamd.service"
-	systemd_dounit "${FILESDIR}/clamav-milter.service"
 
 	keepdir /var/lib/clamav
 	fowners clamav:clamav /var/lib/clamav
@@ -115,6 +114,8 @@ src_install() {
 			MILTER_NICELEVEL=19
 			START_MILTER=no
 		EOF
+
+		systemd_dounit "${FILESDIR}/clamav-milter.service"
 	fi
 
 	prune_libtool_files --all
