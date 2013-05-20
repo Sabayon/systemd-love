@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/app-antivirus/clamav/clamav-0.97.8.ebuild,v 1.1 2013/04/23 18:02:01 lordvan Exp $
 
 EAPI=5
 
@@ -68,7 +68,6 @@ src_install() {
 	newconfd "${FILESDIR}"/clamd.conf clamd
 
 	systemd_dotmpfilesd "${FILESDIR}/tmpfiles.d/clamav.conf"
-	systemd_newunit "${FILESDIR}/clamd_at_scan.service" "clamd@scan.service"
 	systemd_newunit "${FILESDIR}/clamd_at.service" "clamd@.service"
 	systemd_dounit "${FILESDIR}/clamd.service"
 	systemd_dounit "${FILESDIR}/clamav-milter.service"
