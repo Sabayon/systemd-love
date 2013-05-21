@@ -4,6 +4,7 @@
 
 EAPI=5
 
+AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
 inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user sysvinit settingsd
 
@@ -13,7 +14,7 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="amd64 arm ppc64 x86"
+KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
 	tcpd vanilla xattr"
@@ -58,6 +59,7 @@ PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
+	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	dev-util/gperf
@@ -72,6 +74,22 @@ pkg_pretend() {
 		~FANOTIFY ~HOTPLUG ~INOTIFY_USER ~IPV6 ~NET ~PROC_FS ~SIGNALFD
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
+
+	# read null-terminated argv[0] from PID 1
+	# and see which path to systemd was used (if any)
+	local init_path
+	IFS= read -r -d '' init_path < /proc/1/cmdline
+	if [[ ${init_path} == */bin/systemd ]]; then
+		eerror "You are using a compatibility symlink to run systemd. The symlink"
+		eerror "has been removed. Please update your bootloader to use:"
+		eerror
+		eerror "	init=/usr/lib/systemd/systemd"
+		eerror
+		eerror "and reboot your system. We are sorry for the inconvenience."
+		if [[ ${MERGE_TYPE} != buildonly ]]; then
+			die "Compatibility symlink used to boot systemd."
+		fi
+	fi
 
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		if [[ $(gcc-major-version) -lt 4
@@ -111,6 +129,8 @@ src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
+		# avoid bash-completion dep, default is stupid
+		--with-bashcompletiondir=/usr/share/bash-completion
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
@@ -139,6 +159,7 @@ src_configure() {
 		$(use_enable qrcode qrencode)
 		$(use_enable selinux)
 		$(use_enable tcpd tcpwrap)
+		$(use_enable test tests)
 		$(use_enable xattr)
 
 		# not supported (avoid automagic deps in the future)
@@ -185,9 +206,6 @@ src_install() {
 	insinto /usr/share/zsh/site-functions
 	newins shell-completion/systemd-zsh-completion.zsh "_${PN}"
 
-	# remove pam.d plugin .la-file
-	prune_libtool_files --modules
-
 	# compat for init= use
 	dosym ../usr/lib/systemd/systemd /bin/systemd
 	dosym ../lib/systemd/systemd /usr/bin/systemd
@@ -223,6 +241,11 @@ src_install() {
 	do
 		[[ -x ${D}${x} ]] || die "${x} symlink broken, aborting."
 	done
+
+	# Offer a default blacklist that should cover the most
+	# common use cases.
+	insinto /etc/modprobe.d
+	newins "${FILESDIR}"/blacklist-146 blacklist.conf
 
 	# add support for eselect init, rename paths
 	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
@@ -323,6 +346,18 @@ pkg_postinst() {
 		if has_version "sys-apps/openrc"; then
 			/usr/libexec/openrc-to-systemd-2.sh | /bin/sh 2>/dev/null
 		fi
+	fi
+
+	# Migrate to logind from consolekit
+	if [ ! -e "${EROOT}/etc/systemd/.logind.migrated" ] && use openrc; then
+		local runlevdir="${EROOT}/etc/runlevels"
+		# delete old init script
+		find "${runlevdir}" -name "consolekit" -delete
+
+		# add logind to boot runlevel
+		mkdir -p "${EROOT}"etc/runlevels/boot
+		ln -snf /etc/init.d/logind "${EROOT}"etc/runlevels/boot/logind && \
+			touch "${EROOT}/etc/systemd/.logind.migrated"
 	fi
 }
 
