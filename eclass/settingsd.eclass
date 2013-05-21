@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
+inherit eutils
+
 # @ECLASS-VARIABLE: SETTINGSD_DIR
 # @DESCRIPTION:
 # Directory where eselect settingsd must install root directory trees
@@ -75,11 +77,15 @@ settingsd_setup_install() {
 			die "${s} not found, something is broken"
 
 		# polkit actions
-		s="/usr/share/polkit-1/actions/org.freedesktop.${srv}.policy"
-		d="/${settingsd_dir}${s}"
-		dodir $(dirname "${d}")
-		einfo "eselect-settingsd: moving ${s} to ${d}"
-		mv "${D}${s}" "${D}${d}" \
-			|| die "${s} not found, something is broken"
+		if in_iuse policykit; then
+			if use policykit; then
+				s="/usr/share/polkit-1/actions/org.freedesktop.${srv}.policy"
+				d="/${settingsd_dir}${s}"
+				dodir $(dirname "${d}")
+				einfo "eselect-settingsd: moving ${s} to ${d}"
+				mv "${D}${s}" "${D}${d}" \
+					|| die "${s} not found, something is broken"
+			fi
+		fi
 	done
 }
