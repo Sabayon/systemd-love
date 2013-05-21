@@ -1,18 +1,15 @@
 # /etc/conf.d/distccd: config file for /etc/init.d/distccd
 
-DISTCCD_OPTS=""
-
 # this is the distccd executable 
 DISTCCD_EXEC="/usr/bin/distccd"
 
 # this is where distccd will store its pid file
 DISTCCD_PIDFILE="/var/run/distccd/distccd.pid"
 
-# set this option to run distccd with extra parameters
+# Ports:
 # Default port is 3632.  For most people the default is okay.
-DISTCCD_OPTS="${DISTCCD_OPTS} --port 3632"
-
-# Logging
+#
+# Logging:
 # You can change some logging options here:
 # --log-file FILE
 # --log-level LEVEL  [critical,error,warning, notice, info, debug]
@@ -20,8 +17,10 @@ DISTCCD_OPTS="${DISTCCD_OPTS} --port 3632"
 # Leaving --log-file blank will log to syslog
 # example: --log-file /dev/null --log-level warning
 # example: --log-level critical
-
-DISTCCD_OPTS="${DISTCCD_OPTS} --log-level critical"
+#
+# Nice level:
+# The default nice level is 15. You can change it by adding: -N xx
+# where xx is the nice level.
 
 # SECURITY NOTICE:
 # It is HIGHLY recomended that you use the --listen option
@@ -32,9 +31,5 @@ DISTCCD_OPTS="${DISTCCD_OPTS} --log-level critical"
 # example:  --allow 192.168.0.0/24
 # example:  --allow 192.168.0.5 --allow 192.168.0.150
 # example:  --listen 192.168.0.2
-DISTCCD_OPTS="${DISTCCD_OPTS} --allow 192.168.0.0/24"
-#DISTCCD_OPTS="${DISTCCD_OPTS} --listen 192.168.0.2"
 
-# set this for niceness
-# Default is 15
-DISTCCD_OPTS="${DISTCCD_OPTS} -N 15"
+DISTCCD_OPTS="--port 3632 --log-level notice --log-file /var/log/distccd.log -N 15"
