@@ -331,15 +331,23 @@ pkg_postinst() {
 	fi
 
 	# Migrate to logind from consolekit
-	if [ ! -e "${EROOT}/etc/systemd/.logind.migrated" ] && use openrc; then
-		local runlevdir="${EROOT}/etc/runlevels"
-		# delete old init script
-		find "${runlevdir}" -name "consolekit" -delete
+	local runlevdir="${EROOT}/etc/runlevels"
+	#if [ ! -e "${EROOT}/etc/systemd/.logind.migrated" ] && use openrc; then
+	#	# delete old init script
+	#	find "${runlevdir}" -name "consolekit" -delete
+	#
+	#	# add logind to boot runlevel
+	#	mkdir -p "${EROOT}"etc/runlevels/boot
+	#	ln -snf /etc/init.d/logind "${EROOT}"etc/runlevels/boot/logind && \
+	#		touch "${EROOT}/etc/systemd/.logind.migrated"
+	if [ -e "${EROOT}/etc/systemd/.logind.migrated" ] && use openrc; then
+		# revert logind as long as everything won't be migrated to it, and
+		# consolekit removed. make sure to also update molecules.
+		find "${runlevdir}" -name "logind" -delete
 
-		# add logind to boot runlevel
 		mkdir -p "${EROOT}"etc/runlevels/boot
-		ln -snf /etc/init.d/logind "${EROOT}"etc/runlevels/boot/logind && \
-			touch "${EROOT}/etc/systemd/.logind.migrated"
+		ln -snf /etc/init.d/consolekit "${EROOT}"etc/runlevels/boot/consolekit && \
+			rm "${EROOT}/etc/systemd/.logind.migrated"
 	fi
 }
 
