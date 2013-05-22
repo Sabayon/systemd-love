@@ -12,7 +12,7 @@ SRC_URI="http://www.freedesktop.org/software/${PN}/releases/${P}.tar.gz"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
-IUSE="examples gtk +introspection kde nls pam selinux systemd"
+IUSE="examples consolekit gtk +introspection kde nls pam selinux systemd"
 
 RDEPEND=">=dev-lang/spidermonkey-1.8.5-r1[-debug]
 	>=dev-libs/glib-2.32
@@ -37,7 +37,8 @@ PDEPEND="
 		) )
 	kde? ( sys-auth/polkit-kde-agent )
 	pam? ( sys-auth/pambase )
-	|| ( sys-auth/consolekit[policykit] sys-apps/systemd )"
+	systemd? ( sys-apps/systemd )
+	consolekit? ( sus-auth/consolekit[policykit] )"
 
 QA_MULTILIB_PATHS="
 	usr/lib/polkit-1/polkit-agent-helper-1
