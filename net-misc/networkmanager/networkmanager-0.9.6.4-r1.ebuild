@@ -14,7 +14,7 @@ HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="avahi bluetooth connection-sharing dhclient +dhcpcd doc gnutls +introspection kernel_linux +nss modemmanager +ppp resolvconf systemd vala +wext wimax"
+IUSE="avahi bluetooth connection-sharing consolekit dhclient +dhcpcd doc gnutls +introspection kernel_linux +nss modemmanager +ppp resolvconf systemd vala +wext wimax"
 KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 
 REQUIRED_USE="
@@ -56,7 +56,8 @@ COMMON_DEPEND=">=sys-apps/dbus-1.2
 
 RDEPEND="${COMMON_DEPEND}
 	modemmanager? ( >=net-misc/modemmanager-0.4 )
-	|| ( sys-auth/consolekit >=sys-apps/systemd-31 )"
+	systemd? ( sys-apps/systemd )
+	consolekit? ( sys-auth/consolekit )"
 
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig

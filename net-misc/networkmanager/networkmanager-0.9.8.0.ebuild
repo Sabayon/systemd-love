@@ -14,7 +14,7 @@ HOMEPAGE="http://www.gnome.org/projects/NetworkManager/"
 
 LICENSE="GPL-2+"
 SLOT="0" # add subslot if libnm-util.so.2 or libnm-glib.so.4 bumps soname version
-IUSE="avahi bluetooth connection-sharing +consolekit dhclient +dhcpcd doc gnutls
+IUSE="avahi bluetooth connection-sharing consolekit dhclient +dhcpcd doc gnutls
 +introspection kernel_linux +nss modemmanager +ppp resolvconf systemd test vala
 +wext" # wimax
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
