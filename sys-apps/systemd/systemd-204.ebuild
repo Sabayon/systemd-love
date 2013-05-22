@@ -17,7 +17,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
-	tcpd vanilla xattr"
+	tcpd test vanilla xattr"
 
 MINKV="2.6.32"
 
