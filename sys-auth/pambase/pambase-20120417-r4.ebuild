@@ -13,7 +13,7 @@ SRC_URI="http://dev.gentoo.org/~flameeyes/${PN}/${P}.tar.bz2
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 -sparc-fbsd -x86-fbsd ~x86-freebsd ~amd64-linux ~ia64-linux ~x86-linux"
-IUSE="cracklib debug gnome-keyring minimal mktemp pam_krb5 pam_ssh passwdqc selinux +sha512"
+IUSE="consolekit cracklib debug gnome-keyring minimal mktemp pam_krb5 pam_ssh passwdqc selinux +sha512"
 
 RESTRICT=binchecks
 
@@ -24,6 +24,7 @@ RDEPEND="
 		>=sys-libs/pam-${MIN_PAM_REQ}
 		( sys-auth/openpam || ( sys-freebsd/freebsd-pam-modules sys-netbsd/netbsd-pam-modules ) )
 		)
+	consolekit? ( sys-auth/consolekit[pam] )
 	cracklib? ( >=sys-libs/pam-${MIN_PAM_REQ}[cracklib] )
 	gnome-keyring? ( >=gnome-base/gnome-keyring-2.32[pam] )
 	mktemp? ( sys-auth/pam_mktemp )
@@ -77,7 +78,7 @@ src_compile() {
 		$(use_var sha512) \
 		$(use_var KRB5 pam_krb5) \
 		$(use_var minimal) \
-		CONSOLEKIT=yes \
+		$(use_var consolekit) \
 		SYSTEMD=yes \
 		IMPLEMENTATION=${implementation} \
 		LINUX_PAM_VERSION=${linux_pam_version}
