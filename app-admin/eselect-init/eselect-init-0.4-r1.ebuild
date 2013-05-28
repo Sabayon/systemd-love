@@ -23,9 +23,9 @@ DEPEND="${RDEPEND}"
 
 src_install() {
 	cp "${FILESDIR}/init-${PV}.eselect" init.eselect || die "cannot copy sysvinit.eselect"
-	sed -i "s:%INITS_DIR%:${SYSVINITS_DIR}:" init.eselect || die "cannot setup INITS_DIR"
-	sed -i "s:%INIT_DIR%:${SYSVINIT_DIR}:" init.eselect || die "cannot setup INIT_DIR"
-	sed -i "s:%INIT_PARTS%:${SYSVINIT_PARTS}:" init.eselect || die "cannot setup INIT_PARTS"
+	sed -i "s:%INITS_DIR%:${INITS_DIR}:" init.eselect || die "cannot setup INITS_DIR"
+	sed -i "s:%INIT_DIR%:${INIT_DIR}:" init.eselect || die "cannot setup INIT_DIR"
+	sed -i "s:%INIT_PARTS%:${INIT_PARTS}:" init.eselect || die "cannot setup INIT_PARTS"
 
 	insinto /usr/share/eselect/modules
 	doins init.eselect
