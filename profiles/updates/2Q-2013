@@ -1,1 +1,2 @@
 move sys-kernel/genkernel sys-kernel/genkernel-next
+move app-admin/eselect-sysvinit app-admin/eselect-init

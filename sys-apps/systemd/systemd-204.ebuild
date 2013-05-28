@@ -6,7 +6,7 @@ EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user sysvinit settingsd
+inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init settingsd
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -43,7 +43,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	app-admin/eselect-settingsd
-	app-admin/eselect-sysvinit
+	app-admin/eselect-init
 	>=sys-apps/baselayout-2.2
 	openrc? ( >=sys-fs/udev-init-scripts-25 )
 	policykit? ( sys-auth/polkit )
@@ -248,8 +248,8 @@ src_install() {
 	newins "${FILESDIR}"/blacklist-146 blacklist.conf
 
 	# add support for eselect init, rename paths
-	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
-	local parts=( ${SYSVINIT_PARTS} )
+	local init_dir="${INITS_DIR}/${INIT_NAME}"
+	local parts=( ${INIT_PARTS} )
 	dodir "/${init_dir}"
 	local part=
 	for part in "${parts[@]}"; do
@@ -337,7 +337,7 @@ pkg_postinst() {
 		ewarn
 		ewarn "	init=/usr/lib/systemd/systemd"
 	fi
-	pkg_sysvinit_setup
+	eselect-init_setup
 	pkg_settingsd_setup
 
 	if [ "${MIGRATE_SYSTEMD}" = "1" ]; then
@@ -374,11 +374,11 @@ pkg_prerm() {
 	if [[ ! ${REPLACED_BY_VERSION} ]]; then
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
-	pkg_sysvinit_setup
+	eselect-init_setup
 	pkg_settingsd_setup
 }
 
 pkg_postrm() {
-	pkg_sysvinit_setup
+	eselect-init_setup
 	pkg_settingsd_setup
 }

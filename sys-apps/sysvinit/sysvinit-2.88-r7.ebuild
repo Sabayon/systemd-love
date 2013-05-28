@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils toolchain-funcs flag-o-matic sysvinit
+inherit eutils toolchain-funcs flag-o-matic eselect-init
 
 DESCRIPTION="/sbin/init - parent of all processes"
 HOMEPAGE="http://savannah.nongnu.org/projects/sysvinit"
@@ -32,9 +32,9 @@ src_prepare() {
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
 	# eselect-sysvinit support, rename INIT #define
-	sed -i "/^#define INIT/ s:/sbin/init:/${SYSVINITS_DIR}/${SYSVINIT_NAME}/init:" \
+	sed -i "/^#define INIT/ s:/sbin/init:/${INITS_DIR}/${INIT_NAME}/init:" \
 		"${S}/src/paths.h" || die "cannot replace /sbin/init path"
-	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${SYSVINITS_DIR}/${SYSVINIT_NAME}:/sbin:;" \
+	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${INITS_DIR}/${INIT_NAME}:/sbin:;" \
 		"${S}/src/init.h" || die "cannot replace /sbin/init path"
 
 	# mountpoint/sulogin/utmpdump have moved to util-linux
@@ -92,16 +92,16 @@ src_install() {
 	doinitd "${FILESDIR}"/{reboot,shutdown}.sh
 
 	# add support for eselect init, rename paths
-	local init_dir="${SYSVINITS_DIR}/${SYSVINIT_NAME}"
-	local parts=( ${SYSVINIT_PARTS} )
+	local init_dir="${INITS_DIR}/${INIT_NAME}"
+	local parts=( ${INIT_PARTS} )
 	dodir "/${init_dir}"
 	for part in "${parts[@]}"; do
-		mv "${D}/${SYSVINIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
+		mv "${D}/${INIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
 	done
 }
 
 pkg_postinst() {
-	pkg_sysvinit_setup
+	eselect-init_setup
 	# Reload init to fix unmounting problems of / on next reboot.
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
@@ -112,9 +112,9 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	pkg_sysvinit_setup
+	eselect-init_setup
 }
 
 pkg_postrm() {
-	pkg_sysvinit_setup
+	eselect-init_setup
 }
