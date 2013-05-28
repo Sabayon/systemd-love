@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 IUSE="selinux ibm static kernel_FreeBSD"
 
-RDEPEND="app-admin/eselect-sysvinit
+RDEPEND="app-admin/eselect-init
 	selinux? ( >=sys-libs/libselinux-1.28 )
 	!<sys-apps/util-linux-2.22
 	!<sys-apps/sysvinit-2.88-r5"
