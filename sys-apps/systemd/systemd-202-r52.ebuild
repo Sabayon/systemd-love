@@ -104,6 +104,14 @@ pkg_setup() {
 
 src_prepare() {
 	epatch "${FILESDIR}/accept4.patch"
+	# These are missing from upstream 50-udev-default.rules
+	cat <<-EOF > "${T}"/40-gentoo.rules
+	# Gentoo specific usb group
+	SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GROUP="usb"
+	# Keep this for Linux 2.6.32 kernels with accept4() support like .60 wrt #457868
+	SUBSYSTEM=="mem", KERNEL=="null|zero|full|random|urandom", MODE="0666"
+	EOF
+
 	autotools-utils_src_prepare
 }
 
@@ -228,6 +236,10 @@ src_install() {
 	# common use cases.
 	insinto /etc/modprobe.d
 	newins "${FILESDIR}"/blacklist-146 blacklist.conf
+
+	# part of the accept4 patch to support older kernels
+	insinto /lib/udev/rules.d
+	doins "${T}"/40-gentoo.rules
 
 	# add support for eselect init, rename paths
 	local init_dir="${INITS_DIR}/${INIT_NAME}"
