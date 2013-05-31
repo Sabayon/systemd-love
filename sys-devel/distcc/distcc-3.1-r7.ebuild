@@ -6,7 +6,7 @@ EAPI=5
 
 PYTHON_COMPAT=( python{2_5,2_6,2_7} )
 
-inherit eutils fdo-mime flag-o-matic multilib python-single-r1 toolchain-funcs user
+inherit eutils fdo-mime flag-o-matic multilib python-single-r1 toolchain-funcs user systemd
 
 DESCRIPTION="Distribute compilation of C code across several machines on a network"
 HOMEPAGE="http://distcc.org/"
@@ -79,6 +79,7 @@ src_install() {
 	dobin "${FILESDIR}/3.0/distcc-config"
 
 	newinitd "${FILESDIR}/${PV}/init" distccd
+	systemd_dounit "${FILESDIR}/distccd.service"
 
 	cp "${FILESDIR}/3.0/conf" "${T}/distccd"
 	if use avahi; then
