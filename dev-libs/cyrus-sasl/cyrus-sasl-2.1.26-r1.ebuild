@@ -3,6 +3,11 @@
 # $Header: $
 
 EAPI=5
+
+# should be fixed in automake-1.13.2(?).  Please test when released.
+# See automake bug #13514
+WANT_AUTOMAKE="1.12"
+
 inherit eutils flag-o-matic multilib autotools pam java-pkg-opt-2 db-use systemd
 
 SASLAUTHD_CONF_VER="2.1.21"
