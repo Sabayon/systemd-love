@@ -44,6 +44,7 @@ RDEPEND="${DEPEND}
 	app-arch/cpio
 	>=app-misc/pax-utils-0.2.1
 	!<sys-apps/openrc-0.9.9
+	sys-block/thin-provisioning-tools
 	sys-fs/dmraid
 	sys-fs/lvm2"
 
