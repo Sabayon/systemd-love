@@ -114,8 +114,8 @@ src_install() {
 	fperms 700 /etc/${PN}/smokeping_secrets
 
 	newinitd "${FILESDIR}/${PN}.init.2" ${PN} || die
-	systemd_dotmpfilesd "${FILESDIR}"/smokeping-tmpfs.conf
-	systemd_dounit "${FILESDIR}"/smokeping.service
+	systemd_dotmpfilesd "${FILESDIR}"/"{PN}".conf
+	systemd_dounit "${FILESDIR}"/"{PN}".service
 
 	if use apache2 ; then
 		insinto /etc/apache2/modules.d
