@@ -1,11 +1,10 @@
 [Unit]
 Description=Latency Logging and Graphing System
-After=syslog.target network.target
+After=network.target
 
 [Service]
-ExecStart=/usr/sbin/smokeping --nodaemon
+ExecStart=/usr/bin/smokeping --nodaemon
 ExecReload=/bin/kill -HUP $MAINPID
-StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
