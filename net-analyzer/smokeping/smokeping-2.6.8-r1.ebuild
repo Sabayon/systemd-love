@@ -69,8 +69,8 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	newinitd "${FILESDIR}/${PN}.init.3" ${PN} || die
-        systemd_dotmpfilesd "${FILESDIR}"/"{PN}".conf
-        systemd_dounit "${FILESDIR}"/"{PN}".service
+	systemd_dotmpfilesd "${FILESDIR}"/"{PN}".conf
+	systemd_dounit "${FILESDIR}"/"{PN}".service
 
 	mv "${D}/etc/smokeping/basepage.html.dist" "${D}/etc/smokeping/basepage.html"
 	mv "${D}/etc/smokeping/config.dist" "${D}/etc/smokeping/config"
