@@ -4,10 +4,10 @@ ConditionPathIsDirectory=/etc/local.d
 After=network.target
 
 [Service]
-Type=forking
+Type=oneshot
 RemainAfterExit=yes
 ExecStart=/etc/local.d.rc start
-ExecStart=/etc/local.d.rc stop
+ExecStop=/etc/local.d.rc stop
 
 [Install]
 WantedBy=multi-user.target
