@@ -47,6 +47,16 @@ pkg_setup() {
 	local CONFIG_CHECK="~SYSVIPC"
 	use udev && local WARNING_SYSVIPC="CONFIG_SYSVIPC:\tis not set (required for udev sync)\n"
 	check_extra_config
+
+	if use udev && linux_config_exists; then
+		local uevent_helper_path=$(linux_chkconfig_string UEVENT_HELPER_PATH)
+		if [ -n "${uevent_helper_path}" ] && [ "${uevent_helper_path}" != '""' ]; then
+			ewarn "It's highly recommended to set an empty value"
+			ewarn "to the following kernel config option:"
+			ewarn "CONFIG_UEVENT_HELPER_PATH=${uevent_helper_path}"
+		fi
+	fi
+
 	# 1. Genkernel no longer copies /sbin/lvm blindly.
 	if use static; then
 		elog "Warning, we no longer overwrite /sbin/lvm and /sbin/dmsetup with"
@@ -58,22 +68,8 @@ pkg_setup() {
 src_prepare() {
 	epatch "${FILESDIR}"/lvm.conf-2.02.67.patch
 
-	# Should not be needed due to upstream re-arrangement of build
-	#epatch "${FILESDIR}"/${PN}-2.02.56-dmeventd.patch
-	# Should not be need with new upstream udev rules
-	#epatch "${FILESDIR}"/${PN}-2.02.56-device-mapper-export-format.patch
-
-	# Merged upstream:
-	#epatch "${FILESDIR}"/${PN}-2.02.51-as-needed.patch
-	# Merged upstream:
-	#epatch "${FILESDIR}"/${PN}-2.02.48-fix-pkgconfig.patch
-	# Merged upstream:
-	#epatch "${FILESDIR}"/${PN}-2.02.51-fix-pvcreate.patch
-	# Fixed differently upstream:
-	#epatch "${FILESDIR}"/${PN}-2.02.51-dmsetup-selinux-linking-fix-r3.patch
-
 	epatch "${FILESDIR}"/${PN}-2.02.63-always-make-static-libdm.patch
-	epatch "${FILESDIR}"/lvm2-2.02.56-lvm2create_initrd.patch
+	epatch "${FILESDIR}"/${PN}-2.02.56-lvm2create_initrd.patch
 	# bug 318513 - merged upstream
 	#epatch "${FILESDIR}"/${PN}-2.02.64-dmeventd-libs.patch
 	# bug 301331
@@ -84,25 +80,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.02.70-asneeded.patch
 	# bug 332905
 	epatch "${FILESDIR}"/${PN}-2.02.92-dynamic-static-ldflags.patch
-	# bug 361429 - merged upstream in .85
-	#epatch "${FILESDIR}"/${PN}-2.02.84-udev-pkgconfig.patch
-
-	# Merged upstream
-	#epatch "${FILESDIR}"/${PN}-2.02.73-asneeded.patch
 
 	epatch "${FILESDIR}"/${PN}-2.02.88-respect-cc.patch
-
-	# Upstream bug of LVM path
-	# Merged upstream
-	#epatch "${FILESDIR}"/${PN}-2.02.95-lvmpath.patch
-
-	# Upstream patch for http://bugs.gentoo.org/424810
-	# Merged upstream
-	#epatch "${FILESDIR}"/${PN}-2.02.95-udev185.patch
-
-	# Upstream patch for https://bugs.gentoo.org/444328
-	# Merged upstream
-	#epatch "${FILESDIR}"/${PN}-2.02.97-strict-aliasing.patch
 
 	# Fedora lvm 2.02.99 patches, test them with systemd
 	local fedora_fd="${FILESDIR}"/lvm-2.02.99-fedora
@@ -138,12 +117,6 @@ src_prepare() {
 src_configure() {
 	local myconf
 	local buildmode
-
-	myconf="${myconf} --enable-dmeventd"
-	myconf="${myconf} --enable-cmdlib"
-	myconf="${myconf} --enable-applib"
-	myconf="${myconf} --enable-fsadm"
-	myconf="${myconf} --enable-lvmetad"
 
 	# Most of this package does weird stuff.
 	# The build options are tristate, and --without is NOT supported
@@ -208,17 +181,25 @@ src_configure() {
 	use udev && udevdir="${EPREFIX}/$(udev_get_udevdir)/rules.d"
 
 	econf \
-		$(use_enable readline) \
-		$(use_enable selinux) \
+		--enable-dmeventd \
+		--enable-cmdlib \
+		--enable-applib \
+		--enable-fsadm \
+		--enable-lvmetad \
 		--enable-pkgconfig \
 		--with-confdir="${EPREFIX}/etc" \
 		--sbindir="${EPREFIX}/sbin" \
 		--with-staticdir="${EPREFIX}/sbin" \
 		--libdir="${EPREFIX}/$(get_libdir)" \
 		--with-usrlibdir="${EPREFIX}/usr/$(get_libdir)" \
+		--with-default-dm-run-dir=/run \
 		--with-default-run-dir=/run/lvm \
+		--with-default-pid-dir=/run \
 		--with-default-locking-dir=/run/lock/lvm \
 		--with-dmeventd-path=/sbin/dmeventd \
+		$(systemd_with_unitdir) \
+		$(use_enable readline) \
+		$(use_enable selinux) \
 		$(use_enable udev udev_rules) \
 		$(use_enable udev udev_sync) \
 		$(use_with udev udevdir "${udevdir}") \
@@ -248,6 +229,7 @@ src_install() {
 	# install systemd files
 	emake DESTDIR="${D}" install_systemd_generators
 	emake DESTDIR="${D}" install_systemd_units
+	emake DESTDIR="${D}" install_tmpfiles_configuration
 
 	dodoc README VERSION* WHATS_NEW WHATS_NEW_DM doc/*.{conf,c,txt}
 	newinitd "${FILESDIR}"/lvm.rc-2.02.95-r2 lvm
