@@ -37,6 +37,10 @@ src_prepare() {
 	# Respect LDFLAGS
 	sed -i -e 's/\$(LIBDIR)$/\$(LIBDIR) \$(LDFLAGS)/g' Makefile || die
 
+	# Fix shipped unit file paths
+	sed -i -e 's:\(^EnvironmentFile=\).*:\1/etc/conf.d/lm_sensors:' \
+		prog/init/lm_sensors.service || die
+
 	use static-libs || { sed -i -e '/^BUILD_STATIC_LIB/d' Makefile || die; }
 }
 
@@ -59,6 +63,8 @@ src_install() {
 		install
 
 	newinitd "${FILESDIR}"/${PN}-3-init.d ${PN}
+	systemd_dounit prog/init/lm_sensors.service
+
 	newinitd "${FILESDIR}"/fancontrol-init.d-2 fancontrol
 	systemd_dounit "${FILESDIR}"/fancontrol.service
 
