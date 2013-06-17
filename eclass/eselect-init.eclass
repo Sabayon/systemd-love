@@ -2,6 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $
 
+#
+# Assumption: the "init" variable of /sbin/init can be changed
+# via ${ESELECT_INIT_EXEC_NAME}. If unset, the default value is "init".
+# This documentation assumes that ${ESELECT_INIT_EXEC_NAME}="init".
+#
 # Wrapping a /sbin/init is tricky. Firstly, we want to minimize the
 # amount of wrapper code required at runtime, because less code means
 # less bugs and failures.
@@ -56,6 +61,13 @@
 # This directory must be a parent of INITS_DIR.
 INIT_DIR="sbin"
 
+# @ECLASS-VARIABLE: ESELECT_INIT_EXEC_NAME
+# @DESCRIPTION:
+# The executable name inside /sbin to handle as part of eselect-init, by
+# default it is "init". Please rebuild eselect-init and all its direct
+# reverse dependencies if you plan to change it.
+ESELECT_INIT_EXEC_NAME="${ESELECT_INIT_EXEC_NAME:-init}"
+
 # @ECLASS-VARIABLE: INITS_DIR
 # @DESCRIPTION:
 # Directory where eselect-able init implementations must install their
@@ -84,7 +96,7 @@ DEFAULT_INIT="sysvinit"
 # @ECLASS-VARIABLE: INIT_PARTS
 # @DESCRIPTION:
 # List of init executables that must be placed inside ${INITS_DIR}/${PN}
-INIT_PARTS="init"
+INIT_PARTS="${ESELECT_INIT_EXEC_NAME}"
 
 # FUNCTION: eselect-init_setup
 # @USAGE: eselect-init_setup
