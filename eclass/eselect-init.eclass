@@ -41,7 +41,7 @@
 #
 # When /sbin/init is called, the following happens:
 # 1. /sbin/init points to /sbin/init.d/systemd/init and the shell
-#    interpreter gets there.
+#    interpreter gets there (naive explanation, just don't mind).
 # 2. /sbin/init.d/systemd/init points to /sbin/init.d/exec.sh, which
 #    is a regular executable file.
 # 3. /sbin/init.d/exec.sh gets executed.
