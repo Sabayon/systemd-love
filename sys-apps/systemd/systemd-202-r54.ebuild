@@ -4,7 +4,6 @@
 
 EAPI=5
 
-AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
 inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init settingsd
 
@@ -14,10 +13,10 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="amd64 arm ppc64 x86"
 IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
-	tcpd test vanilla xattr"
+	tcpd vanilla xattr"
 
 MINKV="2.6.32"
 
@@ -43,7 +42,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	app-admin/eselect-settingsd
-	app-admin/eselect-init
+	>=app-admin/eselect-init-0.5
 	>=sys-apps/baselayout-2.2
 	openrc? ( >=sys-fs/udev-init-scripts-25 )
 	policykit? ( sys-auth/polkit )
@@ -59,7 +58,6 @@ PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
-	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	dev-util/gperf
@@ -74,22 +72,6 @@ pkg_pretend() {
 		~FANOTIFY ~HOTPLUG ~INOTIFY_USER ~IPV6 ~NET ~PROC_FS ~SIGNALFD
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
-
-	# read null-terminated argv[0] from PID 1
-	# and see which path to systemd was used (if any)
-	local init_path
-	IFS= read -r -d '' init_path < /proc/1/cmdline
-	if [[ ${init_path} == */bin/systemd ]]; then
-		eerror "You are using a compatibility symlink to run systemd. The symlink"
-		eerror "has been removed. Please update your bootloader to use:"
-		eerror
-		eerror "	init=/usr/lib/systemd/systemd"
-		eerror
-		eerror "and reboot your system. We are sorry for the inconvenience."
-		if [[ ${MERGE_TYPE} != buildonly ]]; then
-			die "Compatibility symlink used to boot systemd."
-		fi
-	fi
 
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		if [[ $(gcc-major-version) -lt 4
@@ -137,8 +119,6 @@ src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
-		# avoid bash-completion dep, default is stupid
-		--with-bashcompletiondir=/usr/share/bash-completion
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
@@ -167,7 +147,6 @@ src_configure() {
 		$(use_enable qrcode qrencode)
 		$(use_enable selinux)
 		$(use_enable tcpd tcpwrap)
-		$(use_enable test tests)
 		$(use_enable xattr)
 
 		# not supported (avoid automagic deps in the future)
@@ -213,6 +192,9 @@ src_install() {
 	# zsh completion
 	insinto /usr/share/zsh/site-functions
 	newins shell-completion/systemd-zsh-completion.zsh "_${PN}"
+
+	# remove pam.d plugin .la-file
+	prune_libtool_files --modules
 
 	# compat for init= use
 	dosym ../usr/lib/systemd/systemd /bin/systemd
@@ -262,14 +244,11 @@ src_install() {
 	# add support for eselect init, rename paths
 	local init_dir="${INITS_DIR}/${INIT_NAME}"
 	local parts=( ${INIT_PARTS} )
-	dodir "/${init_dir}"
+	dodir "/${init_dir}/${INITS_REAL_DIR_NAME}"
 	local part=
 	for part in "${parts[@]}"; do
-		if [[ "${part}" == "init" ]]; then
-			dosym "../../../usr/bin/systemd" "/${init_dir}/${part}"
-		else
-			die "unsupported eselect-init part ${part}"
-		fi
+		dosym "../../../../usr/bin/systemd" "/${init_dir}/${INITS_REAL_DIR_NAME}/${part}"
+		ln -s "../exec.sh" "${D}/${init_dir}/${part}" || die
 	done
 
 	settingsd_setup_install

@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 IUSE="selinux ibm static kernel_FreeBSD"
 
-RDEPEND="app-admin/eselect-init
+RDEPEND=">=app-admin/eselect-init-0.5
 	selinux? ( >=sys-libs/libselinux-1.28 )
 	!<sys-apps/util-linux-2.22
 	!<sys-apps/sysvinit-2.88-r5"
@@ -32,9 +32,9 @@ src_prepare() {
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
 	# eselect-sysvinit support, rename INIT #define
-	sed -i "/^#define INIT/ s:/sbin/init:/${INITS_DIR}/${INIT_NAME}/init:" \
+	sed -i "/^#define INIT/ s:/sbin/init:/${INITS_DIR}/${INIT_NAME}/${INITS_REAL_DIR_NAME}/init:" \
 		"${S}/src/paths.h" || die "cannot replace /sbin/init path"
-	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${INITS_DIR}/${INIT_NAME}:/sbin:;" \
+	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${INITS_DIR}/${INIT_NAME}/${INITS_REAL_DIR_NAME}:/sbin:;" \
 		"${S}/src/init.h" || die "cannot replace /sbin/init path"
 
 	# mountpoint/sulogin/utmpdump have moved to util-linux
@@ -94,9 +94,10 @@ src_install() {
 	# add support for eselect init, rename paths
 	local init_dir="${INITS_DIR}/${INIT_NAME}"
 	local parts=( ${INIT_PARTS} )
-	dodir "/${init_dir}"
+	dodir "/${init_dir}/${INITS_REAL_DIR_NAME}"
 	for part in "${parts[@]}"; do
-		mv "${D}/${INIT_DIR}/${part}" "${D}/${init_dir}/${part}" || die
+		mv "${D}/${INIT_DIR}/${part}" "${D}/${init_dir}/${INITS_REAL_DIR_NAME}/${part}" || die
+		ln -s "../exec.sh" "${D}/${init_dir}/${part}" || die
 	done
 }
 

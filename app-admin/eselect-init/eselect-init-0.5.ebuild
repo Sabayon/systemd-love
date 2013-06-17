@@ -18,7 +18,8 @@ IUSE=""
 
 S="${WORKDIR}"
 
-RDEPEND="app-admin/eselect"
+RDEPEND="app-admin/eselect
+	sys-apps/coreutils"
 DEPEND="${RDEPEND}"
 
 src_install() {

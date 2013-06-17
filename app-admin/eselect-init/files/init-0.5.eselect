@@ -3,11 +3,11 @@
 # Distributed under the terms of the GNU General Public License v2 or later
 # $Id: $
 
-DESCRIPTION="Switch between sysvinit implementations"
+DESCRIPTION="Switch between init implementations"
 MAINTAINER="lxnay@gentoo.org"
-VERSION="0.1"
+VERSION="0.5"
 
-# Directory where sysvinit implementations are supposed to be found.
+# Directory where init implementations are supposed to be found.
 # The directory name is going to become the target name.
 INITS_DIR="${EROOT}/%INITS_DIR%"
 
@@ -15,14 +15,15 @@ INITS_DIR="${EROOT}/%INITS_DIR%"
 INIT_DIR="${EROOT}/%INIT_DIR%"
 
 # Executables expected to be found in ${INITS_DIR}/<target>/
+# "init" must be one of them.
 INIT_PARTS=( %INIT_PARTS% )
 
 # File that contains the name of the currently running
-# sysvinit, that will be used by /sbin/init.d/exec.sh
-# to redirect the command calls to the old sysvinit
+# init, that will be used by /sbin/init.d/exec.sh
+# to redirect the command calls to the old init
 # implementation (which is now in lame duck), after
 # a successful set.
-RUNNING_INIT="${EROOT}/run/running.sysvinit"
+RUNNING_INIT="${EROOT}/run/.eselect-init.run"
 
 
 find_targets() {
@@ -56,14 +57,16 @@ set_init() {
 	[[ -z "${target}" || ! -d "${target_dir}" ]] \
 		&& die -q "Target \"${target}\" doesn't appear to be valid!"
 
-	if [ ! -e "${RUNNING_INIT}" ]; then
-		echo "$(get_init)" > "${RUNNING_INIT}.tmp" || \
+	local current_init="$(get_init)"
+	if [ ! -e "${RUNNING_INIT}" ] && \
+		[ "${current_init}" != "${target}" ]; then
+		echo "${INITS_DIR}/${current_init}" > "${RUNNING_INIT}.tmp" || \
 			die "Cannot create ${RUNNING_INIT}.tmp"
 		mv -n "${RUNNING_INIT}.tmp" "${RUNNING_INIT}" || \
 			die "Cannot create ${RUNNING_INIT}"
 	fi
 
-	echo "Setting the sysvinit implementation to ${target}"
+	echo "Setting the init implementation to ${target}"
 	local s d part
 	for part in "${INIT_PARTS[@]}"; do
 		s="${target_dir}/${part}"
@@ -97,11 +100,11 @@ get_init() {
 }
 
 describe_show() {
-	echo "Show the current sysvinit implementation"
+	echo "Show the current init implementation"
 }
 
 describe_show_options() {
-	echo "--quiet  : only print the actual sysvinit implementation"
+	echo "--quiet  : only print the actual init implementation"
 	echo "--silent : same as --quiet"
 }
 
@@ -136,11 +139,11 @@ do_show() {
 ### list action ###
 
 describe_list() {
-	echo "List available sysvinit implementations"
+	echo "List available init implementations"
 }
 
 describe_list_options() {
-	echo "--quiet  : only print the actual sysvinit implementation"
+	echo "--quiet  : only print the actual init implementation"
 	echo "--silent : same as --quiet"
 }
 
@@ -160,7 +163,7 @@ do_list() {
 	done
 
 	[[ -z "${quiet}" ]] && \
-		write_list_start "Available sysvinit implementations:"
+		write_list_start "Available init implementations:"
 	for (( i = 0; i < ${#targets[@]}; i++ )); do
 		if [[ -z "${quiet}" ]]; then
 			[[ "${targets[i]}" == "${init}" ]] && \
@@ -174,7 +177,7 @@ do_list() {
 }
 
 describe_set() {
-	echo "Set a new sysvinit implementation"
+	echo "Set a new init implementation"
 }
 
 describe_set_parameters() {
