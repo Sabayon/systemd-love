@@ -1,0 +1,10 @@
+--- a/src/login/org.freedesktop.login1.service
++++ b/src/login/org.freedesktop.login1.service
+@@ -7,6 +7,6 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.login1
+-Exec=/bin/false
++Exec=/usr/libexec/systemd-logind-dbus-wrapper.sh
+ User=root
+ SystemdService=dbus-org.freedesktop.login1.service

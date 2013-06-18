@@ -111,6 +111,8 @@ src_prepare() {
 	# Keep this for Linux 2.6.32 kernels with accept4() support like .60 wrt #457868
 	SUBSYSTEM=="mem", KERNEL=="null|zero|full|random|urandom", MODE="0666"
 	EOF
+	# Configure the logind dbus service in case of OpenRC booting the system
+	epatch "${FILESDIR}/systemd-logind-dbus-service-wrapper.patch"
 
 	autotools-utils_src_prepare
 }
@@ -256,6 +258,8 @@ src_install() {
 	# OpenRC -> systemd migration script
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
+	# OpenRC logind service wrapper
+	doexe "${FILESDIR}/systemd-logind-dbus-wrapper.sh"
 
 	# systemd unit for /etc/local.d/*.{start,stop}
 	exeinto /etc
