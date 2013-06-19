@@ -5,7 +5,7 @@ ROOT="${ROOT:-/}"
 sd_enable() {
     local arg=
     for arg in ${1}; do
-        echo systemctl --root="${ROOT}" --no-reload enable "${arg}.service"
+        echo systemctl --root="${ROOT}" --no-reload --force enable "${arg}.service"
     done
 }
 
