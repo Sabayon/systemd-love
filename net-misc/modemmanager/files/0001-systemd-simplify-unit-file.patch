@@ -1,0 +1,88 @@
+From 91898aa8b0bb8164b61e84ae68534c38cebb1482 Mon Sep 17 00:00:00 2001
+From: Aleksander Morgado <aleksander@lanedo.com>
+Date: Tue, 04 Jun 2013 13:18:55 +0000
+Subject: systemd: simplify unit file
+
+Avoid setting up the Alias rule, which was a helper to let us 'disable' the
+systemd service including dbus-activations. Without the Alias, 'disable' will
+still let starting ModemManager through dbus-activation. If you really want to
+fully disallow starting MM also through dbus-activation, you should 'mask' and
+'unmask' the service.
+
+E.g.:
+ $ sudo systemctl mask ModemManager
+ln -s '/dev/null' '/etc/systemd/system/ModemManager.service'
+
+ $ sudo mmcli -L
+error: couldn't find the ModemManager process in the bus
+
+ $ sudo systemctl unmask ModemManager
+rm '/etc/systemd/system/ModemManager.service'
+
+ $ sudo mmcli -L
+No modems were found
+
+https://bugzilla.gnome.org/show_bug.cgi?id=701229
+---
+diff --git a/data/Makefile.am b/data/Makefile.am
+index 770f97d..7d5905e 100644
+--- a/data/Makefile.am
++++ b/data/Makefile.am
+@@ -33,17 +33,10 @@ endif
+ 
+ # DBus Activation file
+ dbusactivationdir = $(datadir)/dbus-1/system-services
+-dbusactivation_DATA = org.freedesktop.ModemManager1.service
+-dbusactivation_in_files_systemd = org.freedesktop.ModemManager1.service.systemd.in
+-dbusactivation_in_files_nosystemd = org.freedesktop.ModemManager1.service.nosystemd.in
+-if HAVE_SYSTEMD
+-org.freedesktop.ModemManager1.service: org.freedesktop.ModemManager1.service.systemd.in
+-	$(edit) $< >$@
+-else
+-org.freedesktop.ModemManager1.service: org.freedesktop.ModemManager1.service.nosystemd.in
++dbusactivation_in_files = org.freedesktop.ModemManager1.service.in
++org.freedesktop.ModemManager1.service: org.freedesktop.ModemManager1.service.in
+ 	$(edit) $< >$@
+-endif
+-
++dbusactivation_DATA = org.freedesktop.ModemManager1.service
+ 
+ # Icon
+ icondir=${datadir}/icons/hicolor/22x22/apps
+diff --git a/data/ModemManager.service.in b/data/ModemManager.service.in
+index b59caea..e90ebdf 100644
+--- a/data/ModemManager.service.in
++++ b/data/ModemManager.service.in
+@@ -10,4 +10,3 @@ StandardError=null
+ 
+ [Install]
+ WantedBy=multi-user.target
+-Alias=dbus-org.freedesktop.ModemManager1.service
+diff --git a/data/org.freedesktop.ModemManager1.service.nosystemd.in b/data/org.freedesktop.ModemManager1.service.in
+index 4e3a273..03be918 100644
+--- a/data/org.freedesktop.ModemManager1.service.nosystemd.in
++++ b/data/org.freedesktop.ModemManager1.service.in
+@@ -2,3 +2,4 @@
+ Name=org.freedesktop.ModemManager1
+ Exec=@sbindir@/ModemManager
+ User=root
++SystemdService=ModemManager.service
+diff --git a/data/org.freedesktop.ModemManager1.service.systemd.in b/data/org.freedesktop.ModemManager1.service.systemd.in
+deleted file mode 100644
+index f4e2b26..0000000
+--- a/data/org.freedesktop.ModemManager1.service.systemd.in
++++ b/dev/null
+@@ -1,11 +0,0 @@
+-# This D-Bus service activation file is only for systemd support since
+-# an auto-activated ModemManager would be quite surprising for those people
+-# who have MM installed but turned off.  Thus the Exec path available to
+-# D-Bus is /bin/false, but systemd knows the real Exec path due to the MM
+-# systemd .service file.
+-
+-[D-BUS Service]
+-Name=org.freedesktop.ModemManager1
+-Exec=/bin/false
+-User=root
+-SystemdService=dbus-org.freedesktop.ModemManager1.service
+--
+cgit v0.9.0.2-2-gbebe
