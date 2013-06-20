@@ -1,7 +1,7 @@
 From 91898aa8b0bb8164b61e84ae68534c38cebb1482 Mon Sep 17 00:00:00 2001
 From: Aleksander Morgado <aleksander@lanedo.com>
-Date: Tue, 04 Jun 2013 13:18:55 +0000
-Subject: systemd: simplify unit file
+Date: Tue, 4 Jun 2013 15:18:55 +0200
+Subject: [PATCH] systemd: simplify unit file
 
 Avoid setting up the Alias rule, which was a helper to let us 'disable' the
 systemd service including dbus-activations. Without the Alias, 'disable' will
@@ -24,6 +24,16 @@ No modems were found
 
 https://bugzilla.gnome.org/show_bug.cgi?id=701229
 ---
+ data/Makefile.am                                        | 13 +++----------
+ data/ModemManager.service.in                            |  1 -
+ data/org.freedesktop.ModemManager1.service.in           |  5 +++++
+ data/org.freedesktop.ModemManager1.service.nosystemd.in |  4 ----
+ data/org.freedesktop.ModemManager1.service.systemd.in   | 11 -----------
+ 6 files changed, 8 insertions(+), 28 deletions(-)
+ create mode 100644 data/org.freedesktop.ModemManager1.service.in
+ delete mode 100644 data/org.freedesktop.ModemManager1.service.nosystemd.in
+ delete mode 100644 data/org.freedesktop.ModemManager1.service.systemd.in
+
 diff --git a/data/Makefile.am b/data/Makefile.am
 index 770f97d..7d5905e 100644
 --- a/data/Makefile.am
@@ -58,20 +68,32 @@ index b59caea..e90ebdf 100644
  [Install]
  WantedBy=multi-user.target
 -Alias=dbus-org.freedesktop.ModemManager1.service
-diff --git a/data/org.freedesktop.ModemManager1.service.nosystemd.in b/data/org.freedesktop.ModemManager1.service.in
-index 4e3a273..03be918 100644
---- a/data/org.freedesktop.ModemManager1.service.nosystemd.in
+diff --git a/data/org.freedesktop.ModemManager1.service.in b/data/org.freedesktop.ModemManager1.service.in
+new file mode 100644
+index 0000000..03be918
+--- /dev/null
 +++ b/data/org.freedesktop.ModemManager1.service.in
-@@ -2,3 +2,4 @@
- Name=org.freedesktop.ModemManager1
- Exec=@sbindir@/ModemManager
- User=root
+@@ -0,0 +1,5 @@
++[D-BUS Service]
++Name=org.freedesktop.ModemManager1
++Exec=@sbindir@/ModemManager
++User=root
 +SystemdService=ModemManager.service
+diff --git a/data/org.freedesktop.ModemManager1.service.nosystemd.in b/data/org.freedesktop.ModemManager1.service.nosystemd.in
+deleted file mode 100644
+index 4e3a273..0000000
+--- a/data/org.freedesktop.ModemManager1.service.nosystemd.in
++++ /dev/null
+@@ -1,4 +0,0 @@
+-[D-BUS Service]
+-Name=org.freedesktop.ModemManager1
+-Exec=@sbindir@/ModemManager
+-User=root
 diff --git a/data/org.freedesktop.ModemManager1.service.systemd.in b/data/org.freedesktop.ModemManager1.service.systemd.in
 deleted file mode 100644
 index f4e2b26..0000000
 --- a/data/org.freedesktop.ModemManager1.service.systemd.in
-+++ b/dev/null
++++ /dev/null
 @@ -1,11 +0,0 @@
 -# This D-Bus service activation file is only for systemd support since
 -# an auto-activated ModemManager would be quite surprising for those people
@@ -84,5 +106,6 @@ index f4e2b26..0000000
 -Exec=/bin/false
 -User=root
 -SystemdService=dbus-org.freedesktop.ModemManager1.service
---
-cgit v0.9.0.2-2-gbebe
+-- 
+1.8.2.1
+
