@@ -113,6 +113,10 @@ src_prepare() {
 	EOF
 	# Configure the logind dbus service in case of OpenRC booting the system
 	epatch "${FILESDIR}/systemd-logind-dbus-service-wrapper.patch"
+	# Force cleanup of logind sessions
+	# Note: this patch should use sd_booted() but I don't want to diverge
+	# too much from the Ubuntu patchset anyway.
+	epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
 
 	autotools-utils_src_prepare
 }
