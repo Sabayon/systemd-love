@@ -1,4 +1,4 @@
-From 525e59246a35b9810386b2ff49a3082c303e4aa7 Mon Sep 17 00:00:00 2001
+From 2b539d3289fdf9a23a1598d7e6536d9e98e9ab51 Mon Sep 17 00:00:00 2001
 From: Fabio Erculiani <lxnay@sabayon.org>
 Date: Thu, 20 Jun 2013 23:02:37 +0200
 Subject: [PATCH] Add logind directories initialization and its cgroup setup
@@ -8,14 +8,22 @@ consolekit. For this reason, we expect to be able to run logind
 on top of udev/openrc. logind uses dbus activation and there is
 no need to manually start it.
 ---
- init.d/udev-mount | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ init.d/udev-mount | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/init.d/udev-mount b/init.d/udev-mount
-index a868340..fc3711b 100644
+index a868340..37df0bf 100644
 --- a/init.d/udev-mount
 +++ b/init.d/udev-mount
-@@ -50,6 +50,17 @@ mount_dev_directory()
+@@ -8,6 +8,7 @@ depend()
+ {
+ 	provide dev-mount
+ 	keyword -vserver -lxc
++	need sysfs  # for logind
+ }
+ 
+ mount_dev_directory()
+@@ -50,6 +51,17 @@ mount_dev_directory()
  	eend $rc
  }
  
@@ -33,7 +41,7 @@ index a868340..fc3711b 100644
  seed_dev()
  {
  	# Seed /dev with some things that we know we need
-@@ -75,6 +86,7 @@ seed_dev()
+@@ -75,6 +87,7 @@ seed_dev()
  start()
  {
  	mount_dev_directory || return 1
