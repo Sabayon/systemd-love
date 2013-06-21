@@ -16,7 +16,7 @@ HOMEPAGE="http://www.gentoo.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="logind"
 
 if [ "${PV}" != "9999" ]; then
 	SRC_URI="http://dev.gentoo.org/~williamh/dist/${P}.tar.bz2"
@@ -32,7 +32,8 @@ RDEPEND=">=virtual/udev-180
 
 src_prepare()
 {
-	epatch "${FILESDIR}/0001-Add-logind-directories-initialization-and-its-cgroup.patch"
+	use logind && \
+		epatch "${FILESDIR}/0001-Add-logind-directories-initialization-and-its-cgroup.patch"
 	epatch_user
 }
 
@@ -82,5 +83,11 @@ pkg_postinst()
 		ewarn "The udev-postmount service has been removed because the reasons for"
 		ewarn "its existance have been removed upstream."
 		ewarn "Please remove it from your runlevels."
+	fi
+
+	if use logind; then
+		ewarn "You decided to enable USE=logind."
+		ewarn "This means that you must migrate over to it by removing consolekit"
+		ewarn "from your system completely or things like polkit will fail to work"
 	fi
 }
