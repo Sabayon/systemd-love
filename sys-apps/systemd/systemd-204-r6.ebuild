@@ -6,7 +6,7 @@ EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init settingsd
+inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
@@ -42,7 +42,6 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
-	app-admin/eselect-settingsd
 	>=app-admin/eselect-init-0.5
 	>=sys-apps/baselayout-2.2
 	openrc? ( >=sys-fs/udev-init-scripts-26-r1 )
@@ -136,6 +135,9 @@ src_prepare() {
 	# too much from the Ubuntu patchset anyway.
 	epatch "${FILESDIR}/0001-Avoid-sending-sigterm-to-session-leader.patch"
 	epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
+	# Add openrc-settingsd support in case of systemd being used only as
+	# device manager. This doesn't harm a system booted with systemd.
+	epatch "${FILESDIR}/0001-Wrap-hostname1-locale1-and-timedate1-dbus-services-E.patch"
 
 	autotools-utils_src_prepare
 }
@@ -276,13 +278,15 @@ src_install() {
 		ln -s "../exec.sh" "${D}/${init_dir}/${part}" || die
 	done
 
-	settingsd_setup_install
-
 	# OpenRC -> systemd migration script
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
 	# OpenRC logind service wrapper
 	doexe "${FILESDIR}/systemd-logind-dbus-wrapper.sh"
+
+	# openrc-settingsd support
+	exeinto /usr/libexec
+	doexe "${FILESDIR}/settingsd-wrapper.sh"
 
 	# systemd unit for /etc/local.d/*.{start,stop}
 	exeinto /etc
@@ -356,7 +360,6 @@ pkg_postinst() {
 		ewarn "	init=/usr/lib/systemd/systemd"
 	fi
 	eselect-init_setup
-	pkg_settingsd_setup
 
 	if [ "${MIGRATE_SYSTEMD}" = "1" ]; then
 		ewarn "Automatically enabling some systemd units basing on your"
@@ -373,10 +376,8 @@ pkg_prerm() {
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
 	eselect-init_setup
-	pkg_settingsd_setup
 }
 
 pkg_postrm() {
 	eselect-init_setup
-	pkg_settingsd_setup
 }

@@ -1,0 +1,56 @@
+From e0a451c2e705c8d535716a2785b9d0a8a5910591 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sat, 22 Jun 2013 22:47:15 +0200
+Subject: [PATCH] Wrap hostname1, locale1 and timedate1 dbus services Exec=
+
+systemd automatically starts them without using dbus activation,
+thus the default Exec= value is set to /bin/false. However,
+openrc-settingsd uses dbus activation and Exec= must point to
+our wrapper that runtime detects if the system has been booted by
+openrc or systemd. In the former case, /usr/libexec/openrc-settingsd
+will be called.
+---
+ src/hostname/org.freedesktop.hostname1.service | 2 +-
+ src/locale/org.freedesktop.locale1.service     | 2 +-
+ src/timedate/org.freedesktop.timedate1.service | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/hostname/org.freedesktop.hostname1.service b/src/hostname/org.freedesktop.hostname1.service
+index 6041ed6..5099c21 100644
+--- a/src/hostname/org.freedesktop.hostname1.service
++++ b/src/hostname/org.freedesktop.hostname1.service
+@@ -7,6 +7,6 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.hostname1
+-Exec=/bin/false
++Exec=/usr/libexec/settingsd-wrapper.sh hostname
+ User=root
+ SystemdService=dbus-org.freedesktop.hostname1.service
+diff --git a/src/locale/org.freedesktop.locale1.service b/src/locale/org.freedesktop.locale1.service
+index 025f9a0..0b1d5a4 100644
+--- a/src/locale/org.freedesktop.locale1.service
++++ b/src/locale/org.freedesktop.locale1.service
+@@ -7,6 +7,6 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.locale1
+-Exec=/bin/false
++Exec=/usr/libexec/settingsd-wrapper.sh locale
+ User=root
+ SystemdService=dbus-org.freedesktop.locale1.service
+diff --git a/src/timedate/org.freedesktop.timedate1.service b/src/timedate/org.freedesktop.timedate1.service
+index 875f4be..b141dc1 100644
+--- a/src/timedate/org.freedesktop.timedate1.service
++++ b/src/timedate/org.freedesktop.timedate1.service
+@@ -7,6 +7,6 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.timedate1
+-Exec=/bin/false
++Exec=/usr/libexec/settingsd-wrapper.sh timedate
+ User=root
+ SystemdService=dbus-org.freedesktop.timedate1.service
+-- 
+1.8.2.1
+
