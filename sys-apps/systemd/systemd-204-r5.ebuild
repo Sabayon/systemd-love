@@ -134,6 +134,7 @@ src_prepare() {
 	# Force cleanup of logind sessions
 	# Note: this patch should use sd_booted() but I don't want to diverge
 	# too much from the Ubuntu patchset anyway.
+	epatch "${FILESDIR}/0001-Avoid-sending-sigterm-to-session-leader.patch"
 	epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
 
 	autotools-utils_src_prepare

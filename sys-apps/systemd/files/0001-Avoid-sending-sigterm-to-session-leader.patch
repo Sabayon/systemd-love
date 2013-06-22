@@ -1,0 +1,25 @@
+From 5a958b84603eedf1ba9cc8804a932da84762bd7e Mon Sep 17 00:00:00 2001
+From: Tollef Fog Heen <tfheen@err.no>
+Date: Sat, 30 Jun 2012 08:00:35 +0200
+Subject: [PATCH 01/15] Avoid sending sigterm to session leader
+
+---
+ src/login/logind-session.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 71c7912..905c07d 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -632,7 +632,7 @@ static int session_terminate_cgroup(Session *s) {
+ 
+                         r = manager_get_session_by_pid(s->manager, s->leader, &t);
+                         if (r > 0 && t == s) {
+-                                kill(s->leader, SIGTERM); /* for normal processes */
++                                /*kill(s->leader, SIGTERM); */ /* for normal processes */
+                                 kill(s->leader, SIGHUP);  /* for shells */
+                                 kill(s->leader, SIGCONT); /* in case they are stopped */
+                         }
+-- 
+1.7.10.4
+
