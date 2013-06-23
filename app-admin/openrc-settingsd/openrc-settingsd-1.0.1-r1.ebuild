@@ -19,6 +19,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.30:2
 	sys-apps/openrc:=
 	sys-auth/polkit"
 RDEPEND="${COMMON_DEPEND}
+	!app-admin/eselect-settingsd
 	systemd? ( >=sys-apps/systemd-204-r6[openrc] )
 	|| ( sys-auth/nss-myhostname >=sys-apps/systemd-197 )"
 DEPEND="${COMMON_DEPEND}
