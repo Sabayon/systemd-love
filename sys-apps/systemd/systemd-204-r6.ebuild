@@ -42,6 +42,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
+	!app-admin/eselect-settingsd
 	>=app-admin/eselect-init-0.5
 	>=sys-apps/baselayout-2.2
 	openrc? ( >=sys-fs/udev-init-scripts-26-r1 )
