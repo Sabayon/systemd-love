@@ -1,0 +1,24 @@
+From bf0bc8f907d43a338d1a3634bb252948a7062fe4 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Mon, 24 Jun 2013 20:52:55 +0200
+Subject: [PATCH 2/2] Wrap org.freedesktop.systemd1 dbus service using
+ systemd-shim
+
+---
+ src/core/org.freedesktop.systemd1.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/org.freedesktop.systemd1.service b/src/core/org.freedesktop.systemd1.service
+index d4df3e9..754f4a2 100644
+--- a/src/core/org.freedesktop.systemd1.service
++++ b/src/core/org.freedesktop.systemd1.service
+@@ -7,5 +7,5 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.systemd1
+-Exec=/bin/false
++Exec=/usr/libexec/systemd-shim-wrapper.sh
+ User=root
+-- 
+1.8.2.1
+

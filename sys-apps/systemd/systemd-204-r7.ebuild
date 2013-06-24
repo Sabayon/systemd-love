@@ -45,7 +45,10 @@ RDEPEND="${COMMON_DEPEND}
 	!app-admin/eselect-settingsd
 	>=app-admin/eselect-init-0.5
 	>=sys-apps/baselayout-2.2
-	openrc? ( >=sys-fs/udev-init-scripts-26-r1 )
+	openrc? (
+		sys-apps/systemd-shim
+		>=sys-fs/udev-init-scripts-26-r1
+	)
 	policykit? ( sys-auth/polkit )
 	|| (
 		>=sys-apps/util-linux-2.22
@@ -139,6 +142,8 @@ src_prepare() {
 	# Add openrc-settingsd support in case of systemd being used only as
 	# device manager. This doesn't harm a system booted with systemd.
 	epatch "${FILESDIR}/0001-Wrap-hostname1-locale1-and-timedate1-dbus-services-E.patch"
+	# Add systemd-shim wrapper support
+	epatch "${FILESDIR}/0002-Wrap-org.freedesktop.systemd1-dbus-service-using-sys.patch"
 
 	autotools-utils_src_prepare
 }
@@ -284,6 +289,8 @@ src_install() {
 	doexe "${FILESDIR}/openrc-to-systemd-2.sh"
 	# OpenRC logind service wrapper
 	doexe "${FILESDIR}/systemd-logind-dbus-wrapper.sh"
+	# systemd-shim systemd service wrapper executable
+	doexe "${FILESDIR}/systemd-shim-wrapper.sh"
 
 	# openrc-settingsd support
 	exeinto /usr/libexec
