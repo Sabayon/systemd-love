@@ -1,0 +1,77 @@
+From ce7d21af49a948e09a8fb0c452a342240eda6224 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Mon, 24 Jun 2013 20:37:04 +0200
+Subject: [PATCH 2/2] Make ntp-unit.c work in a Gentoo/OpenRC system
+
+---
+ src/ntp-unit.c | 31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/src/ntp-unit.c b/src/ntp-unit.c
+index f63ae3b..b5ea9e4 100644
+--- a/src/ntp-unit.c
++++ b/src/ntp-unit.c
+@@ -23,16 +23,17 @@
+ 
+ #include <stdio.h>
+ 
+-#define NTPDATE_ENABLED   "/etc/network/if-up.d/ntpdate"
+-#define NTPDATE_DISABLED  "/etc/network/if-up.d/ntpdate.disabled"
+-#define NTPDATE_AVAILABLE "/usr/sbin/ntpdate-debian"
++#define NTPDATE_ENABLE    "/sbin/rc-update add ntp-client default"
++#define NTPDATE_DISABLE   "/sbin/rc-update del ntp-client default"
++#define NTPDATE_STATUS    "/sbin/rc-service ntp-client status"
++#define NTPDATE_AVAILABLE "/usr/sbin/ntpdate"
+ #define NTPD_AVAILABLE    "/usr/sbin/ntpd"
+-#define NTP_STATUS        "/usr/sbin/service ntp status"
+-#define NTPDATE_SPAWN     "/etc/network/if-up.d/ntpdate"
+-#define NTP_ENABLE        "/usr/sbin/update-rc.d ntp enable"
+-#define NTP_DISABLE       "/usr/sbin/update-rc.d ntp disable"
+-#define NTP_RESTART       "/usr/sbin/service ntp restart"
+-#define NTP_STOP          "/usr/sbin/service ntp stop"
++#define NTP_STATUS        "/sbin/rc-service ntpd status"
++#define NTPDATE_SPAWN     "/sbin/rc-service ntp-client restart"
++#define NTP_ENABLE        "/sbin/rc-update add ntpd default"
++#define NTP_DISABLE       "/sbin/rc-update del ntpd default"
++#define NTP_RESTART       "/sbin/rc-service ntpd restart"
++#define NTP_STOP          "/sbin/rc-service ntpd stop"
+ 
+ static gboolean
+ ntp_unit_get_can_use_ntpdate (void)
+@@ -43,10 +44,16 @@ ntp_unit_get_can_use_ntpdate (void)
+ static gboolean
+ ntp_unit_get_using_ntpdate (void)
+ {
++  int exit_status;
++
+   if (!ntp_unit_get_can_use_ntpdate ())
+     return FALSE;
+ 
+-  return g_file_test (NTPDATE_ENABLED, G_FILE_TEST_EXISTS);
++  if (!g_spawn_command_line_sync (NTPDATE_STATUS, NULL, NULL,
++                                  &exit_status, NULL))
++    return FALSE;
++
++  return exit_status == 0;
+ }
+ 
+ static gboolean
+@@ -77,13 +84,13 @@ ntp_unit_set_using_ntpdate (gboolean using_ntp)
+ 
+   if (using_ntp)
+     {
+-      rename (NTPDATE_DISABLED, NTPDATE_ENABLED);
++      g_spawn_command_line_sync (NTPDATE_ENABLE, NULL, NULL, NULL, NULL);
+ 
+       /* Kick start ntpdate to sync time immediately */
+       g_spawn_command_line_sync (NTPDATE_SPAWN, NULL, NULL, NULL, NULL);
+     }
+   else
+-    rename (NTPDATE_ENABLED, NTPDATE_DISABLED);
++    g_spawn_command_line_sync (NTPDATE_DISABLE, NULL, NULL, NULL, NULL);
+ }
+ 
+ static void
+-- 
+1.8.2.1
+

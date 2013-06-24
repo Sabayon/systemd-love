@@ -1,0 +1,73 @@
+From 382fa01497f81dbbd0f59159dfc79811115cd452 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Mon, 24 Jun 2013 20:16:22 +0200
+Subject: [PATCH 1/2] Move all the debian-specific ntp calls to macros
+
+---
+ src/ntp-unit.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/src/ntp-unit.c b/src/ntp-unit.c
+index f47097c..f63ae3b 100644
+--- a/src/ntp-unit.c
++++ b/src/ntp-unit.c
+@@ -27,6 +27,12 @@
+ #define NTPDATE_DISABLED  "/etc/network/if-up.d/ntpdate.disabled"
+ #define NTPDATE_AVAILABLE "/usr/sbin/ntpdate-debian"
+ #define NTPD_AVAILABLE    "/usr/sbin/ntpd"
++#define NTP_STATUS        "/usr/sbin/service ntp status"
++#define NTPDATE_SPAWN     "/etc/network/if-up.d/ntpdate"
++#define NTP_ENABLE        "/usr/sbin/update-rc.d ntp enable"
++#define NTP_DISABLE       "/usr/sbin/update-rc.d ntp disable"
++#define NTP_RESTART       "/usr/sbin/service ntp restart"
++#define NTP_STOP          "/usr/sbin/service ntp stop"
+ 
+ static gboolean
+ ntp_unit_get_can_use_ntpdate (void)
+@@ -57,7 +63,7 @@ ntp_unit_get_using_ntpd (void)
+   if (!ntp_unit_get_can_use_ntpd ())
+     return FALSE;
+ 
+-  if (!g_spawn_command_line_sync ("/usr/sbin/service ntp status", NULL, NULL, &exit_status, NULL))
++  if (!g_spawn_command_line_sync (NTP_STATUS, NULL, NULL, &exit_status, NULL))
+     return FALSE;
+ 
+   return exit_status == 0;
+@@ -74,7 +80,7 @@ ntp_unit_set_using_ntpdate (gboolean using_ntp)
+       rename (NTPDATE_DISABLED, NTPDATE_ENABLED);
+ 
+       /* Kick start ntpdate to sync time immediately */
+-      g_spawn_command_line_sync ("/etc/network/if-up.d/ntpdate", NULL, NULL, NULL, NULL);
++      g_spawn_command_line_sync (NTPDATE_SPAWN, NULL, NULL, NULL, NULL);
+     }
+   else
+     rename (NTPDATE_ENABLED, NTPDATE_DISABLED);
+@@ -83,15 +89,20 @@ ntp_unit_set_using_ntpdate (gboolean using_ntp)
+ static void
+ ntp_unit_set_using_ntpd (gboolean using_ntp)
+ {
+-  char *cmd;
++  const char *cmd;
++
++  if (using_ntp)
++    cmd = NTP_ENABLE;
++  else
++    cmd = NTP_DISABLE;
+ 
+-  cmd = g_strconcat ("/usr/sbin/update-rc.d ntp ", using_ntp ? "enable" : "disable", NULL);
+   g_spawn_command_line_sync (cmd, NULL, NULL, NULL, NULL);
+-  g_free (cmd);
+ 
+-  cmd = g_strconcat ("/usr/sbin/service ntp ", using_ntp ? "restart" : "stop", NULL);;
++  if (using_ntp)
++    cmd = NTP_RESTART;
++  else
++    cmd = NTP_STOP;
+   g_spawn_command_line_sync (cmd, NULL, NULL, NULL, NULL);
+-  g_free (cmd);
+ }
+ 
+ typedef Unit NtpUnit;
+-- 
+1.8.2.1
+
