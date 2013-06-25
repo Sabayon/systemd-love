@@ -133,20 +133,19 @@ src_prepare() {
 	SUBSYSTEM=="mem", KERNEL=="null|zero|full|random|urandom", MODE="0666"
 	EOF
 
-	if use openrc; then
-		# Configure the logind dbus service in case of OpenRC booting the system
-		epatch "${FILESDIR}/systemd-logind-dbus-service-wrapper.patch"
-		# Force cleanup of logind sessions
-		# Note: this patch should use sd_booted() but I don't want to diverge
-		# too much from the Ubuntu patchset anyway.
-		epatch "${FILESDIR}/0001-Avoid-sending-sigterm-to-session-leader.patch"
-		epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
-		# Add openrc-settingsd support in case of systemd being used only as
-		# device manager. This doesn't harm a system booted with systemd.
-		epatch "${FILESDIR}/0001-Wrap-hostname1-locale1-and-timedate1-dbus-services-E.patch"
-		# Add systemd-shim wrapper support
-		epatch "${FILESDIR}/0002-Wrap-org.freedesktop.systemd1-dbus-service-using-sys.patch"
-	fi
+	# Configure the logind dbus service in case of OpenRC booting the system
+	epatch "${FILESDIR}/systemd-logind-dbus-service-wrapper.patch"
+	# Force cleanup of logind sessions
+	# Note: this patch should use sd_booted() but I don't want to diverge
+	# too much from the Ubuntu patchset anyway.
+	epatch "${FILESDIR}/0001-Avoid-sending-sigterm-to-session-leader.patch"
+	epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
+	# Add openrc-settingsd support in case of systemd being used only as
+	# device manager. This doesn't harm a system booted with systemd.
+	epatch "${FILESDIR}/0001-Wrap-hostname1-locale1-and-timedate1-dbus-services-E.patch"
+	# Add systemd-shim wrapper support
+	epatch "${FILESDIR}/0002-Wrap-org.freedesktop.systemd1-dbus-service-using-sys.patch"
+
 	autotools-utils_src_prepare
 }
 
