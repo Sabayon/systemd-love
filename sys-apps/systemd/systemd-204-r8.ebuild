@@ -15,9 +15,10 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
-IUSE="acl audit cryptsetup doc +firmware-loader gcrypt gudev http introspection
+IUSE="acl audit consolekit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
 	tcpd test vanilla xattr"
+REQUIRED_USE="!consolekit? ( logind )"
 
 MINKV="2.6.32"
 
@@ -26,6 +27,7 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	sys-libs/libcap
 	acl? ( sys-apps/acl )
 	audit? ( >=sys-process/audit-2 )
+	!consolekit? ( !sys-auth/consolekit )
 	cryptsetup? ( >=sys-fs/cryptsetup-1.4.2 )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5 )
 	gudev? ( >=dev-libs/glib-2 )
@@ -376,6 +378,15 @@ pkg_postinst() {
 		if has_version "sys-apps/openrc"; then
 			/usr/libexec/openrc-to-systemd-2.sh | /bin/sh 2>/dev/null
 		fi
+	fi
+
+	# This is not really needed but eases the transition to logind
+	if [ ! -e "${EROOT}/etc/systemd/.logind.migrated" ] && ! use consolekit && \
+		use logind && use openrc; then
+		einfo "Migrating to logind, enabling logind service"
+		mkdir -p "${EROOT}"etc/runlevels/boot
+		ln -snf /etc/init.d/logind "${EROOT}"etc/runlevels/boot/logind && \
+			touch "${EROOT}/etc/systemd/.logind.migrated"
 	fi
 }
 
