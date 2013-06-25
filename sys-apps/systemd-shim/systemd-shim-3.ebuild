@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="systemd"  # if systemd is used as device manager
 
-DEPEND="dev-libs/glib:2"
+DEPEND=">=dev-libs/glib-2.36:2"
 RDEPEND="${DEPEND}
 	sys-power/pm-utils
 	systemd? ( sys-apps/systemd )"
