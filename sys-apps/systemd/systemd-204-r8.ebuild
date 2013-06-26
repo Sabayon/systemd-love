@@ -141,7 +141,7 @@ src_prepare() {
 	# Note: this patch should use sd_booted() but I don't want to diverge
 	# too much from the Ubuntu patchset anyway.
 	epatch "${FILESDIR}/0001-Avoid-sending-sigterm-to-session-leader.patch"
-	epatch "${FILESDIR}/0017-Clean-up-empty-sessions-when-not-running-under-syste.patch"
+	epatch "${FILESDIR}/0001-Clean-up-closing-empty-sessions-when-not-running-und.patch"
 	# Add openrc-settingsd support in case of systemd being used only as
 	# device manager. This doesn't harm a system booted with systemd.
 	epatch "${FILESDIR}/0001-Wrap-hostname1-locale1-and-timedate1-dbus-services-E.patch"
