@@ -1,0 +1,35 @@
+From c3816dfd1a35920239a59fa069d4d6b73fe5d8ee Mon Sep 17 00:00:00 2001
+From: Tollef Fog Heen <tfheen@err.no>
+Date: Sat, 30 Jun 2012 08:00:35 +0200
+Subject: [PATCH 2/2] Avoid sending sigterm to session leader
+
+---
+ src/login/logind-session.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 662273b..08ae1ef 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -25,6 +25,8 @@
+ #include <sys/epoll.h>
+ #include <fcntl.h>
+ 
++#include <systemd/sd-daemon.h>
++
+ #include "systemd/sd-id128.h"
+ #include "systemd/sd-messages.h"
+ #include "strv.h"
+@@ -642,7 +644,8 @@ static int session_terminate_cgroup(Session *s) {
+ 
+                         r = manager_get_session_by_pid(s->manager, s->leader, &t);
+                         if (r > 0 && t == s) {
+-                                kill(s->leader, SIGTERM); /* for normal processes */
++                                if (sd_booted() > 0)
++                                        kill(s->leader, SIGTERM); /* for normal processes */
+                                 kill(s->leader, SIGHUP);  /* for shells */
+                                 kill(s->leader, SIGCONT); /* in case they are stopped */
+                         }
+-- 
+1.8.2.1
+
