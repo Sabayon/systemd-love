@@ -137,10 +137,12 @@ src_prepare() {
 
 	# Configure the logind dbus service in case of OpenRC booting the system
 	epatch "${FILESDIR}/systemd-logind-dbus-service-wrapper.patch"
-	# Force cleanup of logind sessions
-	# Note: this patch should use sd_booted() but I don't want to diverge
-	# too much from the Ubuntu patchset anyway.
+	# Force cleanup of logind sessions when running without systemd.
+	# Maybe this should be done by openrc, as discussed in:
+	# https://bugs.freedesktop.org/show_bug.cgi?id=66018
 	epatch "${FILESDIR}/0001-Clean-up-closing-empty-sessions-when-not-running-und.patch"
+	# Ubuntu applies this patch, but I have no idea what's it about. From my tests,
+	# having it or not doesn't make any difference.
 	epatch "${FILESDIR}/0002-Avoid-sending-sigterm-to-session-leader.patch"
 	# Add openrc-settingsd support in case of systemd being used only as
 	# device manager. This doesn't harm a system booted with systemd.
