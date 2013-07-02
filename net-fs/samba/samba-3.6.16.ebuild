@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/samba/samba-3.6.13.ebuild,v 1.1 2013/03/24 13:15:21 patrick Exp $
+# $Header: $
 
 EAPI=4
 
@@ -22,6 +22,7 @@ IUSE="acl addns ads +aio avahi caps +client cluster cups debug dmapi doc example
 DEPEND="dev-libs/popt
 	>=sys-libs/talloc-2.0.5
 	>=sys-libs/tdb-1.2.9
+	>=sys-libs/tevent-0.9.18
 	virtual/libiconv
 	ads? ( virtual/krb5 sys-fs/e2fsprogs
 		client? ( sys-apps/keyutils
@@ -251,6 +252,9 @@ src_compile() {
 }
 
 src_install() {
+	# pkgconfig files installation needed, bug #464818
+	local pkgconfigdir=/usr/$(get_libdir)/pkgconfig
+
 	# install libs
 	if use addns ; then
 		einfo "install addns library"
@@ -259,14 +263,20 @@ src_install() {
 	if use netapi ; then
 		einfo "install netapi library"
 		emake installlibnetapi DESTDIR="${D}"
+		insinto $pkgconfigdir
+		doins pkgconfig/netapi.pc
 	fi
 	if use smbclient ; then
 		einfo "install smbclient library"
 		emake installlibsmbclient DESTDIR="${D}"
+		insinto $pkgconfigdir
+		doins pkgconfig/smbclient.pc
 	fi
 	if use smbsharemodes ; then
 		einfo "install smbsharemodes library"
 		emake installlibsmbsharemodes DESTDIR="${D}"
+		insinto $pkgconfigdir
+		doins pkgconfig/smbsharemodes.pc
 	fi
 
 	# install modules
@@ -296,6 +306,8 @@ src_install() {
 		dosym libnss_wins.so /usr/$(get_libdir)/libnss_wins.so.2
 		dolib.so ../nsswitch/libnss_winbind.so
 		dosym libnss_winbind.so /usr/$(get_libdir)/libnss_winbind.so.2
+		insinto $pkgconfigdir
+		doins pkgconfig/wbclient.pc
 		einfo "install libwbclient related manpages"
 		doman ../docs/manpages/idmap_rid.8
 		doman ../docs/manpages/idmap_hash.8
