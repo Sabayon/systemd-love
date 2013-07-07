@@ -38,7 +38,7 @@ PDEPEND="
 	kde? ( sys-auth/polkit-kde-agent )
 	pam? ( sys-auth/pambase )
 	systemd? ( sys-apps/systemd )
-	consolekit? ( sus-auth/consolekit[policykit] )"
+	consolekit? ( sys-auth/consolekit[policykit] )"
 
 QA_MULTILIB_PATHS="
 	usr/lib/polkit-1/polkit-agent-helper-1
