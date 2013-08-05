@@ -24,7 +24,7 @@ RDEPEND="${DEPEND}
 	dev-python/pyopenssl
 	dev-python/pyxdg
 	|| ( dev-lang/python:2.7 dev-lang/python:2.6 dev-python/simplejson )
-	>=dev-python/twisted-8.1
+	>=dev-python/twisted-core-8.1
 	>=dev-python/twisted-web-8.1
 	geoip? ( dev-libs/geoip )
 	gtk? (
