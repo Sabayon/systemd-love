@@ -18,13 +18,13 @@ else
 	KEYWORDS="~amd64 ~arm ~x86"
 fi
 
-DESCRIPTION="Gentoo automatic kernel building scripts ('next' branch)"
+DESCRIPTION="Gentoo automatic kernel building scripts, reloaded"
 HOMEPAGE="http://www.gentoo.org"
 
 LICENSE="GPL-2"
 SLOT="0"
 RESTRICT=""
-IUSE="crypt cryptsetup dmraid gpg ibm iscsi plymouth selinux"  # Keep 'crypt' in to keep 'use crypt' below working!
+IUSE="cryptsetup dmraid gpg iscsi plymouth selinux"
 
 DEPEND="app-text/asciidoc
 	sys-fs/e2fsprogs
@@ -40,6 +40,7 @@ RDEPEND="${DEPEND}
 	app-arch/cpio
 	>=app-misc/pax-utils-0.2.1
 	!<sys-apps/openrc-0.9.9
+	sys-apps/util-linux
 	sys-block/thin-provisioning-tools
 	sys-fs/dmraid
 	sys-fs/lvm2"
@@ -53,26 +54,9 @@ src_prepare() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
+
 	doman "${S}"/genkernel.8 || die "doman"
 	dodoc "${S}"/AUTHORS "${S}"/README || die "dodoc"
 
-	use ibm && cp "${S}"/ppc64/kernel-2.6-pSeries "${S}"/ppc64/kernel-2.6 || \
-		cp "${S}"/arch/ppc64/kernel-2.6.g5 "${S}"/arch/ppc64/kernel-2.6
-
 	newbashcomp "${S}"/genkernel.bash "${PN}"
-}
-
-pkg_postinst() {
-	elog "You are using a forked version of genkernel called genkernel-next"
-	elog "It contains cool stuff (like proper udev/systemd and plymouth support)"
-	elog
-	elog "Crufty features like cross compiler, unionfs, tuxonice were dropped"
-	elog "because their code quality was really low."
-	elog
-	if use crypt && ! use cryptsetup ; then
-		ewarn "Local use flag 'crypt' has been renamed to 'cryptsetup' (bug #414523)."
-		ewarn "Please set flag 'cryptsetup' for this very package if you would like"
-		ewarn "to have genkernel create an initramfs with LUKS support."
-		echo
-	fi
 }
