@@ -46,10 +46,10 @@ RDEPEND="${DEPEND}
 	sys-fs/lvm2"
 
 src_prepare() {
-	use selinux && sed -i 's/###//g' "${S}"/gen_compile.sh
-
 	sed -i "/^GK_V=/ s:GK_V=.*:GK_V=${PV}:g" "${S}/genkernel" || \
 		die "Could not setup release"
+
+	epatch_user
 }
 
 src_install() {
