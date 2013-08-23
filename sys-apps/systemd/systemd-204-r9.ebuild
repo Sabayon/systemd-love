@@ -150,6 +150,15 @@ src_prepare() {
 	# Add systemd-shim wrapper support
 	epatch "${FILESDIR}/0002-Wrap-org.freedesktop.systemd1-dbus-service-using-sys.patch"
 
+	#477954 - gnome-shell-3.8* session unlock broken
+	# epatch "${FILESDIR}"/206-0001-logind-update-state-file-after-generating-the-sessio.patch
+	#474946 - localectl does not find keymaps
+	epatch "${FILESDIR}"/206-0002-Add-usr-share-keymaps-to-localectl-supported-locatio.patch
+	#478198 - wrong permission for static-nodes
+	epatch "${FILESDIR}"/206-0003-tmpfiles-support-passing-prefix-multiple-times.patch
+	epatch "${FILESDIR}"/206-0004-tmpfiles-introduce-exclude-prefix.patch
+	epatch "${FILESDIR}"/206-0005-tmpfiles-setup-exclude-dev-prefixes-files.patch
+
 	autotools-utils_src_prepare
 }
 
