@@ -32,13 +32,13 @@ DEPEND="app-text/asciidoc
 RDEPEND="${DEPEND}
 	!sys-kernel/genkernel
 	cryptsetup? ( sys-fs/cryptsetup )
-	dmraid? ( sys-fs/dmraid )
+	dmraid? ( >=sys-fs/dmraid-1.0.0_rc16 )
 	gpg? ( app-crypt/gnupg )
 	iscsi? ( sys-block/open-iscsi )
 	plymouth? ( sys-boot/plymouth )
 	app-portage/portage-utils
 	app-arch/cpio
-	>=app-misc/pax-utils-0.2.1
+	>=app-misc/pax-utils-0.6
 	!<sys-apps/openrc-0.9.9
 	sys-apps/util-linux
 	sys-block/thin-provisioning-tools
