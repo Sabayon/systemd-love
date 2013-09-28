@@ -1,9 +1,9 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/sys-auth/polkit/polkit-0.112-r1.ebuild,v 1.1 2013/09/19 17:08:30 ssuominen Exp $
 
 EAPI=5
-inherit eutils autotools multilib pam pax-utils systemd user
+inherit eutils multilib pam pax-utils systemd user
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/polkit"
@@ -12,9 +12,10 @@ SRC_URI="http://www.freedesktop.org/software/${PN}/releases/${P}.tar.gz"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
-IUSE="examples consolekit gtk +introspection kde nls pam selinux systemd"
+IUSE="examples gtk +introspection kde nls pam selinux systemd"
 
-RDEPEND=">=dev-lang/spidermonkey-1.8.5-r1[-debug]
+RDEPEND="ia64? ( =dev-lang/spidermonkey-1.8.5*[-debug] )
+	!ia64? ( dev-lang/spidermonkey:17[-debug] )
 	>=dev-libs/glib-2.32
 	>=dev-libs/expat-2:=
 	introspection? ( >=dev-libs/gobject-introspection-1 )
@@ -36,9 +37,7 @@ PDEPEND="
 		lxde-base/lxpolkit
 		) )
 	kde? ( sys-auth/polkit-kde-agent )
-	pam? ( sys-auth/pambase )
-	systemd? ( sys-apps/systemd )
-	consolekit? ( sys-auth/consolekit[policykit] )"
+	!systemd? ( sys-auth/consolekit[policykit] )"
 
 QA_MULTILIB_PATHS="
 	usr/lib/polkit-1/polkit-agent-helper-1
@@ -55,8 +54,8 @@ pkg_setup() {
 }
 
 src_prepare() {
+	sed -i -e 's|unix-group:wheel|unix-user:0|' src/polkitbackend/*-default.rules || die #401513
 	epatch "${FILESDIR}"/0001-Detect-logind-at-runtime.patch
-	eautoreconf
 }
 
 src_configure() {
@@ -69,6 +68,7 @@ src_configure() {
 		$(use_enable introspection) \
 		--disable-examples \
 		$(use_enable nls) \
+		$(usex ia64 --with-mozjs=mozjs185 --with-mozjs=mozjs-17.0) \
 		"$(systemd_with_unitdir)" \
 		--with-authfw=$(usex pam pam shadow) \
 		$(use pam && echo --with-pam-module-dir="$(getpam_mod_dir)") \
@@ -80,11 +80,10 @@ src_compile() {
 
 	# Required for polkitd on hardened/PaX due to spidermonkey's JIT
 	local f='src/polkitbackend/.libs/polkitd test/polkitbackend/.libs/polkitbackendjsauthoritytest'
-	if has_version '>=dev-lang/spidermonkey-1.8.7[jit]'; then
-		pax-mark m ${f}
-	elif has_version '<dev-lang/spidermonkey-1.8.7'; then
-		pax-mark mr ${f}
-	fi
+	local m='m'
+	# ia64 uses spidermonkey-1.8.5 which requires different pax-mark flags
+	use ia64 && m='mr'
+	pax-mark ${m} ${f}
 }
 
 src_install() {
