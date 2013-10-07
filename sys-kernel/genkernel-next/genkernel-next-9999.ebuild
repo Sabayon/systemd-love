@@ -32,7 +32,6 @@ DEPEND="app-text/asciidoc
 RDEPEND="${DEPEND}
 	!sys-kernel/genkernel
 	cryptsetup? ( sys-fs/cryptsetup )
-	dmraid? ( >=sys-fs/dmraid-1.0.0_rc16 )
 	gpg? ( app-crypt/gnupg )
 	iscsi? ( sys-block/open-iscsi )
 	plymouth? ( sys-boot/plymouth )
@@ -42,7 +41,7 @@ RDEPEND="${DEPEND}
 	!<sys-apps/openrc-0.9.9
 	sys-apps/util-linux
 	sys-block/thin-provisioning-tools
-	sys-fs/dmraid
+	>=sys-fs/dmraid-1.0.0_rc16
 	sys-fs/lvm2"
 
 src_prepare() {
