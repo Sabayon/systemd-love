@@ -42,7 +42,6 @@ RDEPEND="${DEPEND}
 	!<sys-apps/openrc-0.9.9
 	sys-apps/util-linux
 	sys-block/thin-provisioning-tools
-	sys-fs/dmraid
 	sys-fs/lvm2"
 
 src_prepare() {
