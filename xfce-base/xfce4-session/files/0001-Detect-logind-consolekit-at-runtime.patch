@@ -52,51 +52,50 @@ index 4c483a7..bbbd0066 100644
  #endif
  
  static void xfsm_shutdown_finalize  (GObject      *object);
-@@ -96,11 +97,8 @@ struct _XfsmShutdown
- {
-   GObject __parent__;
+@@ -98,9 +99,8 @@ struct _XfsmShutdown
  
--#ifdef HAVE_SYSTEMD
+ #ifdef HAVE_SYSTEMD
    XfsmSystemd    *systemd;
 -#else
-   XfsmConsolekit *consolekit;
--#endif
+-  XfsmConsolekit *consolekit;
+ #endif
++  XfsmConsolekit *consolekit;
    XfsmUPower     *upower;
  
    /* kiosk settings */
-@@ -138,11 +136,20 @@ xfsm_shutdown_init (XfsmShutdown *shutdown)
- {
+@@ -139,10 +139,21 @@ xfsm_shutdown_init (XfsmShutdown *shutdo
    XfceKiosk *kiosk;
  
-+  shutdown->systemd = NULL;
-+  shutdown->consolekit = NULL;
-+
  #ifdef HAVE_SYSTEMD
 -  shutdown->systemd = xfsm_systemd_get ();
 -#else
 -  shutdown->consolekit = xfsm_consolekit_get ();
++  shutdown->systemd = NULL;
+ #endif
++  shutdown->consolekit = NULL;
++
++#ifdef HAVE_SYSTEMD
 +  if (LOGIND_RUNNING())
 +    {
 +      shutdown->systemd = xfsm_systemd_get ();
 +      goto out; /* skip ConsoleKit initialization */
 +    }
 +  /* fallback to ConsoleKit, logind is not running */
- #endif
++#endif
 +  shutdown->consolekit = xfsm_consolekit_get ();
 +
 + out:
    shutdown->upower = xfsm_upower_get ();
    shutdown->helper_state = SUDO_NOT_INITIAZED;
    shutdown->helper_require_password = FALSE;
-@@ -161,11 +168,8 @@ xfsm_shutdown_finalize (GObject *object)
- {
-   XfsmShutdown *shutdown = XFSM_SHUTDOWN (object);
+@@ -163,9 +174,8 @@ xfsm_shutdown_finalize (GObject *object)
  
--#ifdef HAVE_SYSTEMD
+ #ifdef HAVE_SYSTEMD
    g_object_unref (G_OBJECT (shutdown->systemd));
 -#else
-   g_object_unref (G_OBJECT (shutdown->consolekit));
--#endif
+-  g_object_unref (G_OBJECT (shutdown->consolekit));
+ #endif
++  g_object_unref (G_OBJECT (shutdown->consolekit));
    g_object_unref (G_OBJECT (shutdown->upower));
  
    /* close down helper */
