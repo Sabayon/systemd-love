@@ -5,6 +5,7 @@
 EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
+AUTOTOOLS_AUTORECONF=yes
 PYTHON_COMPAT=( python2_7 )
 inherit autotools-utils bash-completion-r1 linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init
 
