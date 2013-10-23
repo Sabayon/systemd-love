@@ -14,13 +14,18 @@ cd "$(dirname "${0}")" || exit 1
 
 # Redirect calls?
 if [ -f "${RUNNING_INIT}" ]; then
-	COMMAND_DIR=$(cat "${RUNNING_INIT}" 2>/dev/null)
-	if [ ! -d "${COMMAND_DIR}" ]; then
-		echo "${RUNNING_INIT} contains garbage, cannot continue" >&2
-		exit 1
+	RUNNING_COMMAND_DIR=$(cat "${RUNNING_INIT}" 2>/dev/null)
+	RUNNING_FINAL_COMMAND="${RUNNING_COMMAND_DIR}/final/${COMMAND_NAME}"
+	# /run may have not been cleared
+	if [ -x "${RUNNING_FINAL_COMMAND}" ]; then
+		# redirect
+		exec "${RUNNING_FINAL_COMMAND}" "${@}"
+	else
+		echo "${RUNNING_FINAL_COMMAND} not found" >&2
+		echo "Ignoring ${RUNNING_INIT} content" >&2
+		# fall through
 	fi
 fi
+
 FINAL_COMMAND="${COMMAND_DIR}/final/${COMMAND_NAME}"
-
-
 exec "${FINAL_COMMAND}" "${@}"
