@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 Type=forking
-PIDFile=/run/munin-node.pid
+PIDFile=/run/munin/munin-node.pid
 ExecStart=/usr/sbin/munin-node
 
 [Install]
