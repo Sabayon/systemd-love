@@ -8,7 +8,7 @@
 	create 640 root root
 	postrotate
 		test -e /run/openrc/softlevel && /etc/init.d/munin-node restart 1>/dev/null || true
-		test -e /run/systemd/system && systemctl restart munin 1>/dev/null || true
+		test -e /run/systemd/system && systemctl restart munin-node 1>/dev/null || true
 	endscript
 }
 
