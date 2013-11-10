@@ -1,0 +1,78 @@
+#!/bin/bash
+# This tool helps users migrate to systemd by suggesting
+# system services to enable given the current OpenRC
+# enabled services state.
+
+RUNLEVELS_DIR=${ROOT}/etc/runlevels
+UNITS_DIR=${ROOT}/etc/systemd/system/
+
+ENABLED_INITS=( $(find "${RUNLEVELS_DIR}" -type l | xargs readlink \
+    | sort | uniq) )
+INSTALLED_PACKAGES=( $(qfile -eqC "${ENABLED_INITS[@]}" | sort | uniq) )
+INSTALLED_UNITS=( $(qlist -qC "${INSTALLED_PACKAGES[@]}" | \
+    grep "^/usr/lib/systemd/system/\([a-zA-Z_0-9\-]\)*.service$" | \
+    sort | uniq | xargs realpath) )
+
+ENABLED_UNITS=( $(find "${UNITS_DIR}" -type l -name "*.service" | \
+    xargs readlink | xargs realpath) )
+
+# Now remove ENABLED_UNITS from INSTALLED_UNITS
+# This is O(n²) in bash :S
+CANDIDATE_UNITS=()
+for unit in "${INSTALLED_UNITS[@]}"; do
+    found=0
+    for enabled_unit in "${ENABLED_UNITS[@]}"; do
+        if [ "${enabled_unit}" = "${unit}" ]; then
+            found=1
+            break
+        fi
+    done
+    if [ "${found}" = "0" ]; then
+        CANDIDATE_UNITS+=( "${unit}" )
+    fi
+done
+
+# Filter out systemd built-in units
+FALSE_POSITIVES=(
+    "NetworkManager-dispatcher"
+    "NetworkManager-wait-online"
+    "cdeject"
+    "dbus"
+    "debug-shell"
+    "emergency"
+    "installer-gui"
+    "installer-text"
+    "quotaon"
+    "rescue"
+    "sabayonlive"
+)
+NEW_CANDIDATE_UNITS=()
+for unit in "${CANDIDATE_UNITS[@]}"; do
+    name=$(basename "${unit}")
+
+    # filter systemd-* services
+    echo "${name}" | grep -q "^systemd-" && continue
+
+    # filter console-* services
+    echo "${name}" | grep -q "^console-" && continue
+
+    # filter alsa-* services
+    echo "${name}" | grep -q "^alsa-" && continue
+
+    # filter initrd-* services
+    echo "${name}" | grep -q "^initrd-" && continue
+
+    unit_name="${name/\.service}"
+    found=0
+    for pos in "${FALSE_POSITIVES[@]}"; do
+        [ "${pos}" = "${unit_name}" ] && found=1 && break
+    done
+    [ "${found}" = "1" ] && continue
+
+    NEW_CANDIDATE_UNITS+=( "${unit_name}" )
+done
+CANDIDATE_UNITS=( "${NEW_CANDIDATE_UNITS[@]}" )
+
+(  for unit in "${CANDIDATE_UNITS[@]}"; do
+        echo ${unit}
+    done ) | sort | uniq

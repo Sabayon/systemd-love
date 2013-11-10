@@ -5,24 +5,27 @@
 EAPI=5
 
 AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
+AUTOTOOLS_AUTORECONF=yes
 PYTHON_COMPAT=( python2_7 )
-inherit autotools-utils linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init
+inherit autotools-utils bash-completion-r1 linux-info multilib pam python-single-r1 systemd toolchain-funcs udev user eselect-init
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd"
-SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz"
+SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz
+	http://dev.gentoo.org/~pacho/${PN}/${P}-patches.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="acl audit consolekit cryptsetup doc +firmware-loader gcrypt gudev http introspection
-	keymap +kmod +logind lzma +openrc pam policykit python qrcode selinux static-libs
+	+logind keymap +kmod lzma openrc pam policykit python qrcode selinux static-libs
 	tcpd test vanilla xattr"
 REQUIRED_USE="!consolekit? ( logind )"
 
 MINKV="2.6.32"
 
-COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
+COMMON_DEPEND="
+	>=sys-apps/dbus-1.6.8-r1
 	>=sys-apps/util-linux-2.20
 	sys-libs/libcap
 	acl? ( sys-apps/acl )
@@ -40,8 +43,8 @@ COMMON_DEPEND=">=sys-apps/dbus-1.6.8-r1
 	qrcode? ( media-gfx/qrencode )
 	selinux? ( sys-libs/libselinux )
 	tcpd? ( sys-apps/tcp-wrappers )
-	xattr? ( sys-apps/attr )"
-
+	xattr? ( sys-apps/attr )
+"
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
 	!app-admin/eselect-settingsd
@@ -60,7 +63,10 @@ RDEPEND="${COMMON_DEPEND}
 	!<sys-libs/glibc-2.10
 	!sys-fs/udev"
 
-PDEPEND=">=sys-apps/hwids-20130326.1[udev]"
+PDEPEND="
+	>=sys-apps/hwids-20130326.1[udev]
+	!vanilla? ( ~sys-apps/gentoo-systemd-integration-1 )
+"
 
 DEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils
@@ -80,11 +86,13 @@ pkg_pretend() {
 		~SYSFS ~!IDE ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2"
 #		~!FW_LOADER_USER_HELPER"
 
+	use acl && CONFIG_CHECK+=" ~TMPFS_POSIX_ACL"
+
 	# read null-terminated argv[0] from PID 1
 	# and see which path to systemd was used (if any)
 	local init_path
 	IFS= read -r -d '' init_path < /proc/1/cmdline
-	if [[ ${init_path} == */bin/systemd ]]; then
+	if [[ ${init_path} == */bin/systemd && -e ${init_path} ]]; then
 		eerror "You are using a compatibility symlink to run systemd. The symlink"
 		eerror "has been removed. Please update your bootloader to use:"
 		eerror
@@ -150,14 +158,12 @@ src_prepare() {
 	# Add systemd-shim wrapper support
 	epatch "${FILESDIR}/0002-Wrap-org.freedesktop.systemd1-dbus-service-using-sys.patch"
 
-	#477954 - gnome-shell-3.8* session unlock broken
-	# epatch "${FILESDIR}"/206-0001-logind-update-state-file-after-generating-the-sessio.patch
-	#474946 - localectl does not find keymaps
-	epatch "${FILESDIR}"/206-0002-Add-usr-share-keymaps-to-localectl-supported-locatio.patch
-	#478198 - wrong permission for static-nodes
-	epatch "${FILESDIR}"/206-0003-tmpfiles-support-passing-prefix-multiple-times.patch
-	epatch "${FILESDIR}"/206-0004-tmpfiles-introduce-exclude-prefix.patch
-	epatch "${FILESDIR}"/206-0005-tmpfiles-setup-exclude-dev-prefixes-files.patch
+	local PATCHES=(
+		# localectl does not find keymaps, bug #474946
+		"${FILESDIR}"/204-0002-Add-usr-share-keymaps-to-localectl-supported-locatio.patch
+		# Backports from newer versions pulled by Fedora maintainers
+		"${WORKDIR}/${P}-patches"/*.patch
+	)
 
 	autotools-utils_src_prepare
 }
@@ -166,8 +172,8 @@ src_configure() {
 	local myeconfargs=(
 		--localstatedir=/var
 		--with-pamlibdir=$(getpam_mod_dir)
-		# avoid bash-completion dep, default is stupid
-		--with-bashcompletiondir=/usr/share/bash-completion
+		# avoid bash-completion dep
+		--with-bashcompletiondir="$(get_bashcompdir)"
 		# make sure we get /bin:/sbin in $PATH
 		--enable-split-usr
 		# disable sysv compatibility
@@ -254,16 +260,6 @@ src_install() {
 		|| die
 	rm "${D}"/usr/share/man/man1/init.1 || die
 
-	if ! use vanilla; then
-		# Create /run/lock as required by new baselay/OpenRC compat.
-		systemd_dotmpfilesd "${FILESDIR}"/gentoo-run.conf
-
-		# Add mount-rules for /var/lock and /var/run, bug #433607
-		systemd_dounit "${FILESDIR}"/var-{lock,run}.mount
-		systemd_enable_service sysinit.target var-lock.mount
-		systemd_enable_service sysinit.target var-run.mount
-	fi
-
 	# Disable storing coredumps in journald, bug #433457
 	mv "${D}"/usr/lib/sysctl.d/50-coredump.conf{,.disabled} || die
 
@@ -317,20 +313,54 @@ src_install() {
 
 	# logind init script for OpenRC
 	newinitd "${FILESDIR}/logind.init.d" "logind"
+
+	# Install the migration assistant and use it in pkg_postinst
+	exeinto /usr/libexec
+	doexe "${FILESDIR}/systemd-migration-assistant"
 }
 
-optfeature() {
-	local i desc=${1} text
-	shift
+migrate_locale() {
+	local envd_locale_def="${EROOT%/}/etc/env.d/02locale"
+	local envd_locale=( "${EROOT%/}"/etc/env.d/??locale )
+	local locale_conf="${EROOT%/}/etc/locale.conf"
 
-	text="  [\e[1m$(has_version ${1} && echo I || echo ' ')\e[0m] ${1}"
-	shift
+	if [[ ! -L ${locale_conf} && ! -e ${locale_conf} ]]; then
+		# if locale.conf does not exist...
+		if [[ -e ${envd_locale} ]]; then
+			# ...either copy env.d/??locale if there's one
+			ebegin "Moving ${envd_locale} to ${locale_conf}"
+			mv "${envd_locale}" "${locale_conf}"
+			eend ${?} || FAIL=1
+		else
+			# ...or create a dummy default
+			ebegin "Creating ${locale_conf}"
+			cat > "${locale_conf}" <<-EOF
+				# This file has been created by the sys-apps/systemd ebuild.
+				# See locale.conf(5) and localectl(1).
 
-	for i; do
-		elog "${text}"
-		text="& [\e[1m$(has_version ${1} && echo I || echo ' ')\e[0m] ${1}"
-	done
-	elog "${text} (${desc})"
+				# LANG=${LANG}
+			EOF
+			eend ${?} || FAIL=1
+		fi
+	fi
+
+	if [[ ! -L ${envd_locale} ]]; then
+		# now, if env.d/??locale is not a symlink (to locale.conf)...
+		if [[ -e ${envd_locale} ]]; then
+			# ...warn the user that he has duplicate locale settings
+			ewarn
+			ewarn "To ensure consistent behavior, you should replace ${envd_locale}"
+			ewarn "with a symlink to ${locale_conf}. Please migrate your settings"
+			ewarn "and create the symlink with the following command:"
+			ewarn "ln -s -n -f ../locale.conf ${envd_locale}"
+			ewarn
+		else
+			# ...or just create the symlink if there's nothing here
+			ebegin "Creating ${envd_locale_def} -> ../locale.conf symlink"
+			ln -n -s ../locale.conf "${envd_locale_def}"
+			eend ${?} || FAIL=1
+		fi
+	fi
 }
 
 pkg_preinst() {
@@ -356,31 +386,36 @@ pkg_postinst() {
 		udevadm hwdb --update --root="${ROOT%/}"
 	fi
 
+	udev_reload || FAIL=1
+
+	# Bug 468876
+	fcaps cap_dac_override,cap_sys_ptrace=ep usr/bin/systemd-detect-virt
+
+	# Bug 465468, make sure locales are respect, and ensure consistency
+	# between OpenRC & systemd
+	migrate_locale
+
+	if [[ ${FAIL} ]]; then
+		eerror "One of the postinst commands failed. Please check the postinst output"
+		eerror "for errors. You may need to clean up your system and/or try installing"
+		eerror "systemd again."
+		eerror
+	fi
+
 	if [[ ! -L "${ROOT}"/etc/mtab ]]; then
-		ewarn "Upstream suggests that the /etc/mtab file should be a symlink to /proc/mounts."
-		ewarn "It is known to cause users being unable to unmount user mounts. If you don't"
-		ewarn "require that specific feature, please call:"
-		ewarn "	$ ln -sf '${ROOT}proc/self/mounts' '${ROOT}etc/mtab'"
+		ewarn "Upstream mandates the /etc/mtab file should be a symlink to /proc/mounts."
+		ewarn "Not having it is not supported by upstream and will cause tools like 'df'"
+		ewarn "and 'mount' to not work properly. Please run:"
+		ewarn "	# ln -sf '${ROOT}proc/self/mounts' '${ROOT}etc/mtab'"
 		ewarn
 	fi
 
-	elog "To get additional features, a number of optional runtime dependencies may"
-	elog "be installed:"
-	optfeature 'for GTK+ systemadm UI and gnome-ask-password-agent' \
-		'sys-apps/systemd-ui'
-
-	# read null-terminated argv[0] from PID 1
-	# and see which path to systemd was used (if any)
-	local init_path
-	IFS= read -r -d '' init_path < /proc/1/cmdline
-	if [[ ${init_path} == */bin/systemd ]]; then
-		ewarn
-		ewarn "You are using a compatibility symlink to run systemd. The symlink"
-		ewarn "will be removed in near future. Please update your bootloader"
-		ewarn "to use:"
-		ewarn
-		ewarn "	init=/usr/lib/systemd/systemd"
+	if ! has_version sys-apps/systemd-ui; then
+		elog "To get additional features, a number of optional runtime dependencies may"
+		elog "be installed:"
+		elog "- sys-apps/systemd-ui: for GTK+ systemadm UI and gnome-ask-password-agent"
 	fi
+
 	eselect-init_setup
 
 	if [ "${MIGRATE_SYSTEMD}" = "1" ]; then
@@ -398,6 +433,23 @@ pkg_postinst() {
 		mkdir -p "${EROOT}"etc/runlevels/boot
 		ln -snf /etc/init.d/logind "${EROOT}"etc/runlevels/boot/logind && \
 			touch "${EROOT}/etc/systemd/.logind.migrated"
+	fi
+
+	# Inform user about services that should be enabled if migrating from OpenRC
+	local units=$(ROOT="${EROOT}" "${EROOT}/usr/libexec/systemd-migration-assistant" 2>/dev/null)
+	if [ -n "${units}" ]; then
+		ewarn "If you want to migrate from OpenRC to systemd, please consider enabling"
+		ewarn "the following systemd units (as root):"
+		ewarn "--"
+
+		local unit=
+		for unit in ${units}; do
+			ewarn "systemctl enable -f ${unit}.service"
+		done
+
+		ewarn "--"
+		ewarn "/usr/libexec/systemd-migration-assistant employs an euristic algorithm"
+		ewarn "So, please review the list manually."
 	fi
 }
 
