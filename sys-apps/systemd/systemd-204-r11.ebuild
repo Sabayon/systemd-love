@@ -16,7 +16,7 @@ SRC_URI="http://www.freedesktop.org/software/systemd/${P}.tar.xz
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+KEYWORDS="amd64 arm ppc ppc64 x86"
 IUSE="acl audit consolekit cryptsetup doc +firmware-loader gcrypt gudev http introspection
 	+logind keymap +kmod lzma openrc pam policykit python qrcode selinux static-libs
 	tcpd test vanilla xattr"
