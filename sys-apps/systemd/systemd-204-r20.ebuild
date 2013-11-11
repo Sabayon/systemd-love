@@ -378,11 +378,6 @@ multilib_src_install_all() {
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/settingsd-wrapper.sh"
 
-	# systemd unit for /etc/local.d/*.{start,stop}
-	exeinto /etc
-	doexe "${FILESDIR}/local.d.rc"
-	systemd_dounit "${FILESDIR}"/local-d.service
-
 	# logind init script for OpenRC
 	newinitd "${FILESDIR}/logind.init.d" "logind"
 
