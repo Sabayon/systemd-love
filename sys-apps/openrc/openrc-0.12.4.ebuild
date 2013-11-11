@@ -55,9 +55,6 @@ src_prepare() {
 
 	# Allow user patches to be applied without modifying the ebuild
 	epatch_user
-
-	# Fix pam_systemd + logind support
-	epatch "${FILESDIR}/0001-Filter-the-systemd-cgroup-from-the-current-process.patch"
 }
 
 src_compile() {
