@@ -43,7 +43,8 @@ DEPEND="${COMMON_DEPEND}
 
 pkg_setup() {
 	PATCHES=(
-		"${FILESDIR}"/0001-Detect-logind-consolekit-at-runtime.patch
+		# See RedHat bug #1012650
+		"${FILESDIR}"/xfce4-session-4.10.1-systemd.patch
 	)
 	EAUTORECONF=1
 
