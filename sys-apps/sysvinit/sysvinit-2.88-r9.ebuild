@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -15,10 +15,8 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
 IUSE="selinux ibm static kernel_FreeBSD"
 
-RDEPEND=">=app-admin/eselect-init-0.5
-	selinux? ( >=sys-libs/libselinux-1.28 )
-	!<sys-apps/util-linux-2.22
-	!<sys-apps/sysvinit-2.88-r5"
+RDEPEND="selinux? ( >=sys-libs/libselinux-1.28 )
+	>=app-admin/eselect-init-0.5"
 DEPEND="${RDEPEND}
 	virtual/os-headers"
 
@@ -29,31 +27,40 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.86-shutdown-single.patch #158615
 	epatch "${FILESDIR}"/${P}-makefile.patch #319197
 	epatch "${FILESDIR}"/${P}-selinux.patch #326697
+	epatch "${FILESDIR}"/${P}-shutdown-h.patch #449354
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
-	# eselect-sysvinit support, rename INIT #define
+	# eselect-init support, rename INIT #define
 	sed -i "/^#define INIT/ s:/sbin/init:/${INITS_DIR}/${INIT_NAME}/${INITS_REAL_DIR_NAME}/init:" \
 		"${S}/src/paths.h" || die "cannot replace /sbin/init path"
 	sed -i "/^#define PATH_DEFAULT/ s;/sbin:;/${INITS_DIR}/${INIT_NAME}/${INITS_REAL_DIR_NAME}:/sbin:;" \
 		"${S}/src/init.h" || die "cannot replace /sbin/init path"
 
-	# mountpoint/sulogin/utmpdump have moved to util-linux
+	# mesg/mountpoint/sulogin/utmpdump/wall have moved to util-linux
 	sed -i -r \
-		-e '/^(USR)?S?BIN/s:\<(mountpoint|sulogin|utmpdump)\>::g' \
-		-e '/^MAN[18]/s:\<(mountpoint|sulogin|utmpdump)[.][18]\>::g' \
+		-e '/^(USR)?S?BIN/s:\<(mesg|mountpoint|sulogin|utmpdump|wall)\>::g' \
+		-e '/^MAN[18]/s:\<(mesg|mountpoint|sulogin|utmpdump|wall)[.][18]\>::g' \
+		src/Makefile || die
+
+	# pidof has moved to >=procps-3.3.9
+	sed -i -r \
+		-e '/\/bin\/pidof/d' \
+		-e '/^MAN8/s:\<pidof.8\>::g' \
 		src/Makefile || die
 
 	# Mung inittab for specific architectures
 	cd "${WORKDIR}"
 	cp "${FILESDIR}"/inittab-2.87 inittab || die "cp inittab"
-	local insert=""
-	use ppc && insert='#psc0:12345:respawn:/sbin/agetty 115200 ttyPSC0 linux'
-	use arm && insert='#f0:12345:respawn:/sbin/agetty 9600 ttyFB0 vt100'
-	use hppa && insert='b0:12345:respawn:/sbin/agetty 9600 ttyB0 vt100'
-	use s390 && insert='s0:12345:respawn:/sbin/agetty 38400 console'
+	local insert=()
+	use ppc && insert=( '#psc0:12345:respawn:/sbin/agetty 115200 ttyPSC0 linux' )
+	use arm && insert=( '#f0:12345:respawn:/sbin/agetty 9600 ttyFB0 vt100' )
+	use hppa && insert=( 'b0:12345:respawn:/sbin/agetty 9600 ttyB0 vt100' )
+	use s390 && insert=( 's0:12345:respawn:/sbin/agetty 38400 console' )
 	if use ibm ; then
-		insert="${insert}#hvc0:2345:respawn:/sbin/agetty -L 9600 hvc0"$'\n'
-		insert="${insert}#hvsi:2345:respawn:/sbin/agetty -L 19200 hvsi0"
+		insert+=(
+			'#hvc0:2345:respawn:/sbin/agetty -L 9600 hvc0'
+			'#hvsi:2345:respawn:/sbin/agetty -L 19200 hvsi0'
+		)
 	fi
 	(use arm || use mips || use sh || use sparc) && sed -i '/ttyS0/s:#::' inittab
 	if use kernel_FreeBSD ; then
@@ -68,7 +75,9 @@ src_prepare() {
 			-e '/ttyS[01]/s:9600:115200:' \
 			inittab
 	fi
-	[[ -n ${insert} ]] && echo "# Architecture specific features"$'\n'"${insert}" >> inittab
+	if [[ ${#insert[@]} -gt 0 ]] ; then
+		printf '%s\n' '' '# Architecture specific features' "${insert[@]}" >> inittab
+	fi
 }
 
 src_compile() {
@@ -103,6 +112,7 @@ src_install() {
 
 pkg_postinst() {
 	eselect-init_setup
+
 	# Reload init to fix unmounting problems of / on next reboot.
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
@@ -110,6 +120,9 @@ pkg_postinst() {
 		# Do not return an error if this fails
 		/sbin/telinit U &>/dev/null
 	fi
+
+	elog "The mesg/mountpoint/sulogin/utmpdump/wall tools have been moved to sys-apps/util-linux."
+	elog "The pidof tool has been moved to sys-apps/procps."
 }
 
 pkg_prerm() {
