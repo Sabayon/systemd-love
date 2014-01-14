@@ -6,7 +6,7 @@
   notifempty
   sharedscripts
   postrotate
-  test -d /run/openrc/softlevel && /etc/init.d/apache2 reload > /dev/null 2>&1 || true
-  test -d /run/systemd/system && systemctl reload apache2 > /dev/null 2>&1 || true
+  test -e /run/openrc/softlevel && /etc/init.d/apache2 reload > /dev/null 2>&1 || true
+  test -e /run/systemd/system && systemctl reload apache2 > /dev/null 2>&1 || true
   endscript
 }
