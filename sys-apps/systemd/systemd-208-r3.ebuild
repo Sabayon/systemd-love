@@ -303,7 +303,7 @@ multilib_src_install_all() {
 	dodir "/${init_dir}/${INITS_REAL_DIR_NAME}"
 	local part=
 	for part in "${parts[@]}"; do
-		dosym "../../../../usr/bin/systemd" "/${init_dir}/${INITS_REAL_DIR_NAME}/${part}"
+		dosym "../../../../usr/lib/systemd/systemd" "/${init_dir}/${INITS_REAL_DIR_NAME}/${part}"
 		ln -s "../exec.sh" "${D}/${init_dir}/${part}" || die
 	done
 }
